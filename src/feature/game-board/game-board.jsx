@@ -1,5 +1,6 @@
 import { Grid } from "@mui/material";
-import React from "react";
+import React, { useState } from "react";
+import _ from "lodash";
 import GameCell from "../game-cell/game-cell";
 
 const DUMMY_BOARD = [
@@ -15,14 +16,47 @@ const DUMMY_BOARD = [
 ];
 
 function GameBoard(props) {
+  const [gameState, setGameState] = useState(DUMMY_BOARD);
+
+  /**
+   *
+   * @param {*} event
+   * @param {*} coords | [coordX, coorY]
+   */
+  function changeHandler(event, [coordX, coordY]) {
+    console.log(event.target.value);
+    setGameState((prevState) => {
+      // make deep copy since properties are deeply nested
+      const prevStateCopy = _.cloneDeep(prevState);
+
+      let userInput = formatValueToSingleDigit(event.target.value);
+
+      const isInputZero = userInput === 0;
+      if (isInputZero) return prevStateCopy;
+
+      const isUserInputSameAsPrevious =
+        userInput === prevStateCopy[coordX][coordY];
+
+      if (isUserInputSameAsPrevious) {
+        prevStateCopy[coordX][coordY] = "";
+      } else {
+        prevStateCopy[coordX][coordY] = userInput;
+      }
+      return prevStateCopy;
+    });
+  }
+
   return (
     // TODO: add constant for # of columns
     <Grid container columns={9}>
-      {DUMMY_BOARD.map((row, coordX) => {
-        return row.map((cell, coordY) => (
+      {gameState.map((row, coordX) => {
+        return row.map((cellValue, coordY) => (
           <GameCell
             key={`${coordX} ${coordY}`}
-            value={DUMMY_BOARD[coordX][coordY]}
+            value={cellValue}
+            coordX={coordX}
+            coordY={coordY}
+            onChangeHandler={changeHandler}
           />
         ));
       })}
@@ -31,3 +65,14 @@ function GameBoard(props) {
 }
 
 export default GameBoard;
+
+function formatValueToSingleDigit(value) {
+  if (value.length > 1) {
+    const firstDigitPlace = 1;
+    value = value[firstDigitPlace];
+  }
+
+  value = value && parseInt(value);
+
+  return value;
+}
