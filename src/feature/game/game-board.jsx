@@ -3,9 +3,10 @@ import React, { useState } from "react";
 import _ from "lodash";
 import GameCell from "./game-cell";
 import { DUMMY_BOARD } from "constants";
+import Cell from "models/cell.model";
 
 function GameBoard(props) {
-  const [gameState, setGameState] = useState(DUMMY_BOARD);
+  const [gameState, setGameState] = useState(initializeState());
 
   /**
    *
@@ -25,9 +26,9 @@ function GameBoard(props) {
       const isInputZero = userInput === 0;
 
       if (isInputZero || !userInput) {
-        prevStateCopy[coordX][coordY] = prevState[coordX][coordY];
+        prevStateCopy[coordX][coordY].value = prevState[coordX][coordY].value;
       } else {
-        prevStateCopy[coordX][coordY] = userInput;
+        prevStateCopy[coordX][coordY].value = userInput;
       }
 
       return prevStateCopy;
@@ -48,10 +49,10 @@ function GameBoard(props) {
     // TODO: add constant for # of columns
     <Grid container columns={9}>
       {gameState.map((row, coordX) => {
-        return row.map((cellValue, coordY) => (
+        return row.map((cellConfig, coordY) => (
           <GameCell
             key={`${coordX} ${coordY}`}
-            value={cellValue}
+            cellConfig={cellConfig}
             coordX={coordX}
             coordY={coordY}
             onChangeHandler={changeHandler}
@@ -64,6 +65,10 @@ function GameBoard(props) {
 }
 
 export default GameBoard;
+
+function initializeState() {
+  return DUMMY_BOARD.map((row) => row.map((value) => new Cell(value)));
+}
 
 function getLastCharFromNumString(numString) {
   return numString && numString[numString.length - 1];
