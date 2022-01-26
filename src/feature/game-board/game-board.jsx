@@ -28,17 +28,18 @@ function GameBoard(props) {
       // make deep copy since properties are deeply nested
       const prevStateCopy = _.cloneDeep(prevState);
 
-      if (event.data === "-" || event.data === "+") return prevStateCopy;
-
       let userInput = _.flow(
         getLastCharFromNumString,
         convertNumStringToInteger
       )(event.target.value);
 
       const isInputZero = userInput === 0;
-      if (isInputZero || !userInput) return prevStateCopy;
 
-      prevStateCopy[coordX][coordY] = userInput;
+      if (isInputZero || !userInput) {
+        prevStateCopy[coordX][coordY] = prevState[coordX][coordY];
+      } else {
+        prevStateCopy[coordX][coordY] = userInput;
+      }
 
       return prevStateCopy;
     });
