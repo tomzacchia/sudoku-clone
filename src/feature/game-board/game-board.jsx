@@ -24,26 +24,34 @@ function GameBoard(props) {
    * @param {*} coords | [coordX, coorY]
    */
   function changeHandler(event, [coordX, coordY]) {
-    console.log(event.target.value);
     setGameState((prevState) => {
       // make deep copy since properties are deeply nested
       const prevStateCopy = _.cloneDeep(prevState);
 
-      let userInput = formatValueToSingleDigit(event.target.value);
+      if (event.data === "-" || event.data === "+") return prevStateCopy;
+
+      let userInput = _.flow(
+        getLastCharFromNumString,
+        convertNumStringToInteger
+      )(event.target.value);
 
       const isInputZero = userInput === 0;
-      if (isInputZero) return prevStateCopy;
+      if (isInputZero || !userInput) return prevStateCopy;
 
-      const isUserInputSameAsPrevious =
-        userInput === prevStateCopy[coordX][coordY];
+      prevStateCopy[coordX][coordY] = userInput;
 
-      if (isUserInputSameAsPrevious) {
-        prevStateCopy[coordX][coordY] = "";
-      } else {
-        prevStateCopy[coordX][coordY] = userInput;
-      }
       return prevStateCopy;
     });
+  }
+
+  // prevent any input equal to "e", "-", "+", "."
+  function keydownHandler(event) {
+    // https://www.codegrepper.com/code-examples/javascript/remove+character+at+index+from+string+javascript
+    const { key } = event;
+    const filteredKeys = new Set(["e", "-", "+", "."]);
+    if (filteredKeys.has(key)) {
+      event.preventDefault();
+    }
   }
 
   return (
@@ -57,6 +65,7 @@ function GameBoard(props) {
             coordX={coordX}
             coordY={coordY}
             onChangeHandler={changeHandler}
+            onKeyDownHandler={keydownHandler}
           />
         ));
       })}
@@ -66,13 +75,10 @@ function GameBoard(props) {
 
 export default GameBoard;
 
-function formatValueToSingleDigit(value) {
-  if (value.length > 1) {
-    const firstDigitPlace = 1;
-    value = value[firstDigitPlace];
-  }
+function getLastCharFromNumString(numString) {
+  return numString && numString[numString.length - 1];
+}
 
-  value = value && parseInt(value);
-
-  return value;
+function convertNumStringToInteger(numString) {
+  return numString && parseInt(numString);
 }
