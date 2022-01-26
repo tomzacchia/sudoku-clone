@@ -1,5 +1,5 @@
 import React from "react";
-import GameBoard from "../game-board/game-board";
+import GameBoard from "./game-board";
 import { Grid } from "@mui/material";
 
 function Game(props) {

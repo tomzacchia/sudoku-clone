@@ -1,7 +1,7 @@
 import { Grid } from "@mui/material";
 import React, { useState } from "react";
 import _ from "lodash";
-import GameCell from "../game-cell/game-cell";
+import GameCell from "./game-cell";
 
 const DUMMY_BOARD = [
   [5, 3, 4, 6, 7, 8, 9, 1, 2],
