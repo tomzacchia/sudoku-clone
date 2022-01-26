@@ -1,23 +1,36 @@
 import React from "react";
 import { Grid, Input } from "@mui/material";
-
-import styles from "./game-cell.module.css";
 import _ from "lodash";
 
+import styles from "./game-cell.module.css";
+
 function GameCell({
-  value,
+  cellConfig,
   coordX,
   coordY,
   onChangeHandler,
   onKeyDownHandler,
 }) {
-  console.log("GAME CELL RENDERED");
+  let itemRootClass = styles["item-root"];
+  let shouldDisplayUserError = cellConfig.errorFlag && cellConfig.isInteractive;
+
+  if (cellConfig.highlightFlag)
+    itemRootClass += ` ${styles["item-root-highlight"]}`;
+
+  if (cellConfig.errorFlag && !cellConfig.isInteractive)
+    itemRootClass += ` ${styles["item-non-interactive-error"]}`;
+
   return (
-    <Grid item xs={1} className={styles.root}>
+    <Grid item xs={1} classes={{ root: itemRootClass }}>
       <Input
-        classes={{ input: styles.input }}
+        classes={{
+          root: styles["input-root"],
+          input: styles.input,
+          error: shouldDisplayUserError && styles["user-error"],
+        }}
         type="number"
-        value={value}
+        value={cellConfig.value}
+        error={cellConfig.errorFlag}
         onChange={(event) => onChangeHandler(event, [coordX, coordY])}
         onKeyDown={onKeyDownHandler}
         disableUnderline={true}
@@ -33,7 +46,5 @@ function GameCell({
 export default React.memo(GameCell, deepCompareStates);
 
 function deepCompareStates(prevProps, newProps) {
-  // TODO: deep compare input config object to minimize re-renders
-  // _.isEqual(prevState, newState)
-  return prevProps.value === newProps.value;
+  return _.isEqual(prevProps.cellConfig, newProps.cellConfig);
 }
