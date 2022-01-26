@@ -20,7 +20,7 @@ function GameBoard(props) {
 
   /**
    *
-   * @param {*} event
+   * @param {*} event | Event object
    * @param {*} coords | [coordX, coorY]
    */
   function changeHandler(event, [coordX, coordY]) {
