@@ -77,12 +77,17 @@ function GameBoard(props) {
     const highlightUserClickedColumn = _.curry(updateHighlightForColumn)(
       coordY
     );
+    const highlightUserClickedSubgrid = _.curry(highlightSubgrid)(
+      coordX,
+      coordY
+    );
 
     setGameState((prevState) => {
       return _.flow(
         resetHighlight,
         highlightUserClickedRow,
-        highlightUserClickedColumn
+        highlightUserClickedColumn,
+        highlightUserClickedSubgrid
       )(_.cloneDeep(prevState));
     });
   }
@@ -135,6 +140,36 @@ function updateHighlightForColumn(column, boardData) {
   }
 
   return boardData;
+}
+
+function highlightSubgrid(row, column, boardData) {
+  // row 1-3 offset = 0, row 4-6 offset = 3, row 7-9 offset = 6
+  const ROW_OFFSET = calculateOffset(row);
+  const COLUMN_OFFSET = calculateOffset(column);
+
+  for (let i = 0; i < 3; i++) {
+    const subgridRow = ROW_OFFSET + i;
+    for (let j = 0; j < 3; j++) {
+      const subgridColumn = COLUMN_OFFSET + j;
+      boardData[subgridRow][subgridColumn].highlightFlag = true;
+    }
+  }
+
+  return boardData;
+}
+
+function calculateOffset(num) {
+  let offset = 0;
+
+  if (num < 3) {
+    offset = 0;
+  } else if (num < 6) {
+    offset = 3;
+  } else {
+    offset = 6;
+  }
+
+  return offset;
 }
 
 function resetHighlight(boardData) {
