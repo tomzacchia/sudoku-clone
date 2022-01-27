@@ -12,7 +12,7 @@
 }
 
 .item-non-interactive-error {
-  background-color: salmon;
+  background-color: #f7cfd6;
 }
 
 .input {
@@ -20,6 +20,7 @@
 }
 
 .input-root {
+  width: 100%;
   font-size: 26px !important;
 }
 
