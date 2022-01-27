@@ -35,7 +35,11 @@ function GameBoard(props) {
     });
   }
 
-  // prevent any input equal to "e", "-", "+", "."
+  /**
+   * Prevents the user from entering "e", "-", "+", ".", which are valid numbers
+   * however we limit user's input to numbers 1 to 9, inclusive
+   * @param {*} event
+   */
   function keydownHandler(event) {
     // https://www.codegrepper.com/code-examples/javascript/remove+character+at+index+from+string+javascript
     const { key } = event;
