@@ -1,9 +1,27 @@
 import { Grid } from "@mui/material";
-import React, { useState } from "react";
+import React, { useReducer, useState } from "react";
 import _ from "lodash";
 import GameCell from "./game-cell";
-import { DUMMY_BOARD } from "constants";
+import { DUMMY_BOARD, BOARD_LENGTH } from "constants";
 import Cell from "models/cell.model";
+
+function boardReducer(state, action) {
+  switch (action.type) {
+    case "":
+      break;
+
+    default:
+      break;
+  }
+}
+
+/*
+  boardState : {
+    boardData: [[][]...],
+    numberOfEmptyCells: 
+    numberOfInvalidCells:
+  }
+*/
 
 function GameBoard(props) {
   const [gameState, setGameState] = useState(initializeState());
@@ -49,6 +67,26 @@ function GameBoard(props) {
     }
   }
 
+  /**
+   * Highlights row, column and subgrid that contain user's selected cell
+   * @param {*} coordX
+   * @param {*} coordY
+   */
+  function clickHandler(coordX, coordY) {
+    const highlightUserClickedRow = _.curry(updateHighlightForRow)(coordX);
+    const highlightUserClickedColumn = _.curry(updateHighlightForColumn)(
+      coordY
+    );
+
+    setGameState((prevState) => {
+      return _.flow(
+        resetHighlight,
+        highlightUserClickedRow,
+        highlightUserClickedColumn
+      )(_.cloneDeep(prevState));
+    });
+  }
+
   return (
     // TODO: add constant for # of columns
     <Grid container columns={9}>
@@ -61,6 +99,7 @@ function GameBoard(props) {
             coordY={coordY}
             onChangeHandler={changeHandler}
             onKeyDownHandler={keydownHandler}
+            onClickHandler={clickHandler}
           />
         ));
       })}
@@ -80,4 +119,26 @@ function getLastCharFromNumString(numString) {
 
 function convertNumStringToInteger(numString) {
   return numString && parseInt(numString);
+}
+
+function updateHighlightForRow(row, boardData) {
+  for (let column = 0; column < BOARD_LENGTH; column++) {
+    boardData[row][column].highlightFlag = true;
+  }
+
+  return boardData;
+}
+
+function updateHighlightForColumn(column, boardData) {
+  for (let row = 0; row < BOARD_LENGTH; row++) {
+    boardData[row][column].highlightFlag = true;
+  }
+
+  return boardData;
+}
+
+function resetHighlight(boardData) {
+  return boardData.map((row) => {
+    return row.map((cellData) => ({ ...cellData, highlightFlag: false }));
+  });
 }

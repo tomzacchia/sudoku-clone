@@ -10,6 +10,7 @@ function GameCell({
   coordY,
   onChangeHandler,
   onKeyDownHandler,
+  onClickHandler,
 }) {
   // TODO: function that returns all styles in order of precendnce
   let itemRootClass = styles["item-root"];
@@ -34,6 +35,7 @@ function GameCell({
         error={cellConfig.errorFlag}
         onChange={(event) => onChangeHandler(event, [coordX, coordY])}
         onKeyDown={onKeyDownHandler}
+        onClick={() => onClickHandler(coordX, coordY)}
         disableUnderline={true}
         disabled={!cellConfig.isInteractive}
         inputProps={{
