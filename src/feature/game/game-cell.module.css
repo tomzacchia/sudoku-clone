@@ -17,11 +17,19 @@
 
 .input {
   text-align: center;
-}
-
-.input-root {
   width: 100%;
   font-size: 26px !important;
+  color: #2572e3;
+}
+
+.input::-webkit-outer-spin-button,
+.input::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+
+.user-default {
+  color: #2572e3 !important;
 }
 
 .user-error {
