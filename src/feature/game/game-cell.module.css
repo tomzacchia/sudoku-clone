@@ -19,7 +19,7 @@
   text-align: center;
   width: 100%;
   font-size: 26px !important;
-  color: #2572e3;
+  color: #2572e3 !important;
 }
 
 .input::-webkit-outer-spin-button,
@@ -28,9 +28,9 @@
   margin: 0;
 }
 
-.user-default {
+/* .user-default {
   color: #2572e3 !important;
-}
+} */
 
 .user-error {
   color: red !important;
