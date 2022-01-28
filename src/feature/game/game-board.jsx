@@ -32,15 +32,20 @@ function GameBoard(props) {
         convertNumStringToInteger
       )(event.target.value);
 
-      const isInputZero = userInput === 0;
+      const isUserInputZero = userInput && userInput === 0;
 
-      if (isInputZero || !userInput) {
-        prevStateCopy[coordX][coordY].value = prevState[coordX][coordY].value;
+      if (isUserInputZero || !userInput) {
+        prevStateCopy[coordX][coordY].value = "";
       } else {
         prevStateCopy[coordX][coordY].value = userInput;
       }
 
-      return prevStateCopy;
+      // TODO: update errorFlag based on new userInput
+      let newState = updateErrorFlagForRow(coordX, _.cloneDeep(prevStateCopy));
+
+      newState = updateErrorFlagForColumn(coordY, _.cloneDeep(newState));
+
+      return newState;
     });
   }
 
@@ -180,4 +185,74 @@ function resetHighlight(boardData) {
   return boardData.map((row) => {
     return row.map((cellData) => ({ ...cellData, highlightFlag: false }));
   });
+}
+
+/**
+ * Function receives a reference to boardData and updates errorFlag property for
+ * all cells in the same row as the cell the user is interacting with
+ * @param {number} userInput
+ * @param {number} row
+ * @param {} boardData 2D array of nested Cell objects
+ * @returns
+ */
+function updateErrorFlagForRow(row, boardData) {
+  // only stores cells with value property defined
+  const frequencyOfCellsByValue = {};
+
+  boardData[row].forEach((cell) => {
+    const cellValue = cell.value;
+    if (!cell.value) return;
+
+    if (!frequencyOfCellsByValue.hasOwnProperty(cellValue)) {
+      frequencyOfCellsByValue[cellValue] = [cell];
+    } else {
+      frequencyOfCellsByValue[cellValue].push(cell);
+    }
+  });
+
+  // 2. iterate through all keys
+  for (const property in frequencyOfCellsByValue) {
+    const cellFrequencyArray = frequencyOfCellsByValue[property];
+
+    if (cellFrequencyArray.length === 1) {
+      cellFrequencyArray[0].errorFlag = false;
+    } else {
+      cellFrequencyArray.forEach((cell) => {
+        cell.errorFlag = true;
+      });
+    }
+  }
+
+  // 3. update Cell.errorFlag
+  return boardData;
+}
+
+function updateErrorFlagForColumn(column, boardData) {
+  const frequencyOfCellsByValue = {};
+
+  for (let row = 0; row < BOARD_LENGTH; row++) {
+    const cell = boardData[row][column];
+    const cellValue = cell.value;
+    if (!cell.value) continue;
+
+    if (!frequencyOfCellsByValue.hasOwnProperty(cellValue)) {
+      frequencyOfCellsByValue[cellValue] = [cell];
+    } else {
+      frequencyOfCellsByValue[cellValue].push(cell);
+    }
+  }
+
+  for (const property in frequencyOfCellsByValue) {
+    const cellFrequencyArray = frequencyOfCellsByValue[property];
+
+    if (cellFrequencyArray.length === 1) {
+      cellFrequencyArray[0].errorFlag = false;
+    } else {
+      cellFrequencyArray.forEach((cell) => {
+        cell.errorFlag = true;
+      });
+    }
+  }
+
+  return boardData;
 }

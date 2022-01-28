@@ -5,9 +5,9 @@ export default class Cell {
    */
   constructor(value) {
     this.value = value;
+    this.isInteractive = value ? false : true;
     this.highlightFlag = false;
     this.errorFlag = false;
-    this.isInteractive = value ? false : true;
     this.errorCount = 0;
   }
 }

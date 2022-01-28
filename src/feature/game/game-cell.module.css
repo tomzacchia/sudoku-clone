@@ -15,23 +15,19 @@
   background-color: #f7cfd6;
 }
 
+.user-error {
+  color: red !important;
+}
+
 .input {
   text-align: center;
   width: 100%;
   font-size: 26px !important;
-  color: #2572e3 !important;
+  color: #2572e3;
 }
 
 .input::-webkit-outer-spin-button,
 .input::-webkit-inner-spin-button {
   -webkit-appearance: none;
   margin: 0;
-}
-
-/* .user-default {
-  color: #2572e3 !important;
-} */
-
-.user-error {
-  color: red !important;
 }
