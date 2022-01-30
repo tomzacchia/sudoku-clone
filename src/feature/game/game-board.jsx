@@ -25,25 +25,20 @@ function GameBoard(props) {
    */
   function changeHandler(event, [coordX, coordY]) {
     setGameState((prevState) => {
-      const prevStateCopy = _.cloneDeep(prevState);
+      let prevStateCopy = _.cloneDeep(prevState);
 
-      let userInput = _.flow(
-        getLastCharFromNumString,
-        convertNumStringToInteger
-      )(event.target.value);
+      prevStateCopy = updateValueAtCoord(
+        event.target.value,
+        [coordX, coordY],
+        prevStateCopy
+      );
 
-      const isUserInputZero = userInput && userInput === 0;
+      const intersectingIndexes = getAllIntersectingIndexes(coordX, coordY);
 
-      if (isUserInputZero || !userInput) {
-        prevStateCopy[coordX][coordY].value = "";
-      } else {
-        prevStateCopy[coordX][coordY].value = userInput;
-      }
-
-      // TODO: update errorFlag based on new userInput
-      let newState = updateErrorFlagForRow(coordX, _.cloneDeep(prevStateCopy));
-
-      newState = updateErrorFlagForColumn(coordY, _.cloneDeep(newState));
+      const newState = updateErrorCountForIndexes(
+        intersectingIndexes,
+        prevStateCopy
+      );
 
       return newState;
     });
@@ -127,6 +122,23 @@ function initializeState() {
   return DUMMY_BOARD.map((row) => row.map((value) => new Cell(value)));
 }
 
+function updateValueAtCoord(rawValue, coord, boardData) {
+  const [coordX, coordY] = coord;
+  let userInput = _.flow(
+    getLastCharFromNumString,
+    convertNumStringToInteger
+  )(rawValue);
+
+  const isUserInputZero = userInput && userInput === 0;
+
+  if (isUserInputZero || !userInput) {
+    boardData[coordX][coordY].value = "";
+  } else {
+    boardData[coordX][coordY].value = userInput;
+  }
+  return boardData;
+}
+
 function getLastCharFromNumString(numString) {
   return numString && numString[numString.length - 1];
 }
@@ -187,72 +199,101 @@ function resetHighlight(boardData) {
   });
 }
 
-/**
- * Function receives a reference to boardData and updates errorFlag property for
- * all cells in the same row as the cell the user is interacting with
- * @param {number} userInput
- * @param {number} row
- * @param {} boardData 2D array of nested Cell objects
- * @returns
- */
-function updateErrorFlagForRow(row, boardData) {
-  // only stores cells with value property defined
-  const frequencyOfCellsByValue = {};
+function updateErrorCountForIndexes(indexes, boardData) {
+  indexes.forEach((index) => {
+    const [row, col] = index;
+    const valueAtIndex = boardData[row][col].value;
 
-  boardData[row].forEach((cell) => {
-    const cellValue = cell.value;
-    if (!cell.value) return;
+    if (!valueAtIndex) {
+      boardData[row][col].errorCount = 0;
+      return;
+    }
 
-    if (!frequencyOfCellsByValue.hasOwnProperty(cellValue)) {
-      frequencyOfCellsByValue[cellValue] = [cell];
-    } else {
-      frequencyOfCellsByValue[cellValue].push(cell);
+    const rowIndexes = getCellIndexesInRow(row);
+    const columnIndexes = getCellIndexesInColumn(col);
+    const subgridIndexes = getCellIndexesInSubgrid(row, col);
+
+    let newErrorCount = 0;
+
+    rowIndexes.forEach(updateNewErrorCount);
+    columnIndexes.forEach(updateNewErrorCount);
+    subgridIndexes.forEach(updateNewErrorCount);
+
+    boardData[row][col].errorCount = newErrorCount;
+
+    function updateNewErrorCount(coord) {
+      const [coordX, coordY] = coord;
+      const valueAtCoord = boardData[coordX][coordY].value;
+
+      if (_.isEqual(index, coord)) return;
+
+      if (valueAtIndex === valueAtCoord) newErrorCount += 1;
     }
   });
 
-  // 2. iterate through all keys
-  for (const property in frequencyOfCellsByValue) {
-    const cellFrequencyArray = frequencyOfCellsByValue[property];
-
-    if (cellFrequencyArray.length === 1) {
-      cellFrequencyArray[0].errorFlag = false;
-    } else {
-      cellFrequencyArray.forEach((cell) => {
-        cell.errorFlag = true;
-      });
-    }
-  }
-
-  // 3. update Cell.errorFlag
   return boardData;
 }
 
-function updateErrorFlagForColumn(column, boardData) {
-  const frequencyOfCellsByValue = {};
+function getAllIntersectingIndexes(row, column) {
+  return removeRepeatedIndexes([
+    ...getCellIndexesInRow(row),
+    ...getCellIndexesInColumn(column),
+    ...getCellIndexesInSubgrid(row, column),
+  ]);
+}
+
+/**
+ * @param {*} indexes | array of tuples
+ */
+function removeRepeatedIndexes(indexes) {
+  const uniqueIndexes = new Map();
+
+  indexes.forEach((index) => {
+    const row = index[0];
+    const column = index[1];
+    var coordString = `${row}+${column}`;
+
+    if (!uniqueIndexes.has(coordString)) {
+      uniqueIndexes.set(coordString, index);
+    }
+  });
+
+  return Array.from(uniqueIndexes.values());
+}
+
+function getCellIndexesInRow(row) {
+  const cellIndexes = [];
+
+  for (let column = 0; column < BOARD_LENGTH; column++) {
+    cellIndexes.push([row, column]);
+  }
+
+  return cellIndexes;
+}
+
+function getCellIndexesInColumn(column) {
+  const cellIndexes = [];
 
   for (let row = 0; row < BOARD_LENGTH; row++) {
-    const cell = boardData[row][column];
-    const cellValue = cell.value;
-    if (!cell.value) continue;
+    cellIndexes.push([row, column]);
+  }
 
-    if (!frequencyOfCellsByValue.hasOwnProperty(cellValue)) {
-      frequencyOfCellsByValue[cellValue] = [cell];
-    } else {
-      frequencyOfCellsByValue[cellValue].push(cell);
+  return cellIndexes;
+}
+
+function getCellIndexesInSubgrid(row, column) {
+  const cellIndexes = [];
+
+  const rowOffset = calculateOffset(row);
+  const columnOffset = calculateOffset(column);
+
+  for (let i = 0; i < 3; i++) {
+    for (let j = 0; j < 3; j++) {
+      const rowIndex = rowOffset + i;
+      const subgridColumnIndex = columnOffset + j;
+      cellIndexes.push([rowIndex, subgridColumnIndex]);
     }
   }
 
-  for (const property in frequencyOfCellsByValue) {
-    const cellFrequencyArray = frequencyOfCellsByValue[property];
-
-    if (cellFrequencyArray.length === 1) {
-      cellFrequencyArray[0].errorFlag = false;
-    } else {
-      cellFrequencyArray.forEach((cell) => {
-        cell.errorFlag = true;
-      });
-    }
-  }
-
-  return boardData;
+  return cellIndexes;
 }
