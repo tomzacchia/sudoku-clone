@@ -14,12 +14,14 @@ function GameCell({
 }) {
   // TODO: function that returns all styles in order of precendnce
   let itemRootClass = styles["item-root"];
-  let shouldDisplayUserError = cellConfig.errorFlag && cellConfig.isInteractive;
+  let shouldDisplayUserError =
+    cellConfig.errorCount > 0 && cellConfig.isInteractive;
+  const errorFlag = cellConfig.errorCount > 0;
 
   if (cellConfig.highlightFlag)
     itemRootClass += ` ${styles["item-root-highlight"]}`;
 
-  if (cellConfig.errorFlag && !cellConfig.isInteractive)
+  if (cellConfig.errorCount > 0 && !cellConfig.isInteractive)
     itemRootClass += ` ${styles["item-non-interactive-error"]}`;
 
   return (
@@ -32,7 +34,7 @@ function GameCell({
         }}
         type="number"
         value={cellConfig.value}
-        error={cellConfig.errorFlag}
+        error={errorFlag}
         onChange={(event) => onChangeHandler(event, [coordX, coordY])}
         onKeyDown={onKeyDownHandler}
         onClick={() => onClickHandler(coordX, coordY)}
