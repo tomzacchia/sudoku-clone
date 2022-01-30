@@ -3,17 +3,10 @@ import React, { useState } from "react";
 import _ from "lodash";
 import GameCell from "./game-cell";
 import { DUMMY_BOARD, BOARD_LENGTH } from "constants";
+import isSolutionValid from "utilities/sudoko-solver";
 import Cell from "models/cell.model";
 
 import styles from "./game-board.module.css";
-
-/*
-  boardState : {
-    boardData: [[][]...],
-    numberOfEmptyCells: 
-    numberOfInvalidCells:
-  }
-*/
 
 function GameBoard(props) {
   const [gameState, setGameState] = useState(initializeState());
@@ -23,15 +16,20 @@ function GameBoard(props) {
    * @param {*} event | Event object
    * @param {*} coords | [coordX, coorY]
    */
-  function changeHandler(event, [coordX, coordY]) {
+  function changeHandler(event, coord) {
     setGameState((prevState) => {
       let prevStateCopy = _.cloneDeep(prevState);
+      const [coordX, coordY] = coord;
 
       prevStateCopy = updateValueAtCoord(
         event.target.value,
-        [coordX, coordY],
+        coord,
         prevStateCopy
       );
+
+      // 1. extract values
+
+      // 2. check if solution is valid
 
       const intersectingIndexes = getAllIntersectingIndexes(coordX, coordY);
 
@@ -199,6 +197,14 @@ function resetHighlight(boardData) {
   });
 }
 
+/**
+ * Receives all row, column or 3x3 grid indexes that contain user coordinate. The function
+ * interates through index, i.e [0,0], and counts the number of times the same
+ * value exsits in the same row, column AND 3x3 grid
+ * @param {*} indexes
+ * @param {*} boardData
+ * @returns
+ */
 function updateErrorCountForIndexes(indexes, boardData) {
   indexes.forEach((index) => {
     const [row, col] = index;
@@ -209,15 +215,11 @@ function updateErrorCountForIndexes(indexes, boardData) {
       return;
     }
 
-    const rowIndexes = getCellIndexesInRow(row);
-    const columnIndexes = getCellIndexesInColumn(col);
-    const subgridIndexes = getCellIndexesInSubgrid(row, col);
-
     let newErrorCount = 0;
 
-    rowIndexes.forEach(updateNewErrorCount);
-    columnIndexes.forEach(updateNewErrorCount);
-    subgridIndexes.forEach(updateNewErrorCount);
+    getCellIndexesInRow(row).forEach(updateNewErrorCount);
+    getCellIndexesInColumn(col).forEach(updateNewErrorCount);
+    getCellIndexesInSubgrid(row, col).forEach(updateNewErrorCount);
 
     boardData[row][col].errorCount = newErrorCount;
 
