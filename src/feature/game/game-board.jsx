@@ -1,5 +1,5 @@
 import { Grid } from "@mui/material";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import _ from "lodash";
 import GameCell from "./game-cell";
 import { DUMMY_BOARD, BOARD_LENGTH } from "constants";
@@ -8,8 +8,19 @@ import Cell from "models/cell.model";
 
 import styles from "./game-board.module.css";
 
-function GameBoard(props) {
+function GameBoard({ handelGameDone }) {
   const [gameState, setGameState] = useState(initializeState());
+
+  useEffect(() => {
+    const isUserSolutionValid = isSolutionValid(
+      extractValuesFromBoard(gameState)
+    );
+
+    if (isUserSolutionValid) {
+      console.log("congrats!");
+      handelGameDone();
+    }
+  });
 
   /**
    *
@@ -26,14 +37,6 @@ function GameBoard(props) {
         coord,
         prevStateCopy
       );
-
-      const isUserSolutionValid = isSolutionValid(
-        extractValuesFromBoard(prevStateCopy)
-      );
-
-      if (isUserSolutionValid) {
-        console.log("congrats!");
-      }
 
       const intersectingIndexes = getAllIntersectingIndexes(coordX, coordY);
 
@@ -118,7 +121,11 @@ function GameBoard(props) {
   );
 }
 
-export default GameBoard;
+export default React.memo(GameBoard, deepCompareStates);
+
+function deepCompareStates(prevProps, newProps) {
+  return _.isEqual(prevProps.cellConfig, newProps.cellConfig);
+}
 
 function initializeState() {
   return DUMMY_BOARD.map((row) => row.map((value) => new Cell(value)));
