@@ -27,9 +27,13 @@ function GameBoard(props) {
         prevStateCopy
       );
 
-      // 1. extract values
+      const isUserSolutionValid = isSolutionValid(
+        extractValuesFromBoard(prevStateCopy)
+      );
 
-      // 2. check if solution is valid
+      if (isUserSolutionValid) {
+        console.log("congrats!");
+      }
 
       const intersectingIndexes = getAllIntersectingIndexes(coordX, coordY);
 
@@ -118,6 +122,10 @@ export default GameBoard;
 
 function initializeState() {
   return DUMMY_BOARD.map((row) => row.map((value) => new Cell(value)));
+}
+
+function extractValuesFromBoard(boardData) {
+  return boardData.map((row) => row.map((cell) => cell.value));
 }
 
 function updateValueAtCoord(rawValue, coord, boardData) {
