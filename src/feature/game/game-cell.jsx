@@ -29,7 +29,9 @@ function GameCell({
       <Input
         classes={{
           root: styles["input-root"],
-          input: styles.input,
+          input: `${styles.input} ${
+            !cellConfig.isInteractive && styles["input-non-interactive"]
+          }`,
           error: shouldDisplayUserError && styles["user-error"],
         }}
         type="number"
