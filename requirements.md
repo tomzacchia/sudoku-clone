@@ -16,7 +16,7 @@
 
 ### Non-board related features
 
-- on completion a message is displayed
+- ~~on completion a message is displayed~~
 
 - button that displays a menu to select a new game or to restart
 
