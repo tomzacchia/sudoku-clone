@@ -29,20 +29,19 @@ function GameBoard({ handelGameDone }) {
    */
   function changeHandler(event, coord) {
     setGameState((prevState) => {
-      let prevStateCopy = _.cloneDeep(prevState);
       const [coordX, coordY] = coord;
 
-      prevStateCopy = updateValueAtCoord(
+      let newState = updateValueAtCoord(
         event.target.value,
         coord,
-        prevStateCopy
+        _.cloneDeep(prevState)
       );
 
       const intersectingIndexes = getAllIntersectingIndexes(coordX, coordY);
 
-      const newState = updateErrorCountForIndexes(
+      newState = updateErrorCountForIndexes(
         intersectingIndexes,
-        prevStateCopy
+        _.cloneDeep(newState)
       );
 
       return newState;
@@ -69,22 +68,11 @@ function GameBoard({ handelGameDone }) {
    * @param {*} coordY
    */
   function clickHandler(coordX, coordY) {
-    const highlightUserClickedRow = _.curry(updateHighlightForRow)(coordX);
-    const highlightUserClickedColumn = _.curry(updateHighlightForColumn)(
-      coordY
-    );
-    const highlightUserClickedSubgrid = _.curry(highlightSubgrid)(
-      coordX,
-      coordY
-    );
-
     setGameState((prevState) => {
-      return _.flow(
-        resetHighlight,
-        highlightUserClickedRow,
-        highlightUserClickedColumn,
-        highlightUserClickedSubgrid
-      )(_.cloneDeep(prevState));
+      const newState = resetHighlight(_.cloneDeep(prevState));
+      const intersectingIndexes = getAllIntersectingIndexes(coordX, coordY);
+
+      return updateHighlightForIndexes(intersectingIndexes, newState);
     });
   }
 
@@ -160,34 +148,18 @@ function convertNumStringToInteger(numString) {
   return numString && parseInt(numString);
 }
 
-function updateHighlightForRow(row, boardData) {
-  for (let column = 0; column < BOARD_LENGTH; column++) {
-    boardData[row][column].highlightFlag = true;
-  }
-
-  return boardData;
+function resetHighlight(boardData) {
+  return boardData.map((row) => {
+    return row.map((cellData) => ({ ...cellData, highlightFlag: false }));
+  });
 }
 
-function updateHighlightForColumn(column, boardData) {
-  for (let row = 0; row < BOARD_LENGTH; row++) {
-    boardData[row][column].highlightFlag = true;
-  }
-
-  return boardData;
-}
-
-function highlightSubgrid(row, column, boardData) {
-  // row 1-3 offset = 0, row 4-6 offset = 3, row 7-9 offset = 6
-  const ROW_OFFSET = calculateOffset(row);
-  const COLUMN_OFFSET = calculateOffset(column);
-
-  for (let i = 0; i < 3; i++) {
-    const subgridRow = ROW_OFFSET + i;
-    for (let j = 0; j < 3; j++) {
-      const subgridColumn = COLUMN_OFFSET + j;
-      boardData[subgridRow][subgridColumn].highlightFlag = true;
-    }
-  }
+function updateHighlightForIndexes(indexes, boardData) {
+  indexes.forEach((index) => {
+    const [row, col] = index;
+    const cellAtIndex = boardData[row][col];
+    cellAtIndex.highlightFlag = true;
+  });
 
   return boardData;
 }
@@ -204,12 +176,6 @@ function calculateOffset(num) {
   }
 
   return offset;
-}
-
-function resetHighlight(boardData) {
-  return boardData.map((row) => {
-    return row.map((cellData) => ({ ...cellData, highlightFlag: false }));
-  });
 }
 
 /**
@@ -232,6 +198,7 @@ function updateErrorCountForIndexes(indexes, boardData) {
 
     let newErrorCount = 0;
 
+    // get all intersection at index
     getCellIndexesInRow(row).forEach(updateNewErrorCount);
     getCellIndexesInColumn(col).forEach(updateNewErrorCount);
     getCellIndexesInSubgrid(row, col).forEach(updateNewErrorCount);
