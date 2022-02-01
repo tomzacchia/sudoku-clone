@@ -5,6 +5,7 @@ import GameCell from "./game-cell";
 import { DUMMY_BOARD, BOARD_LENGTH } from "constants";
 import isSolutionValid from "utilities/sudoko-solver";
 import Cell from "models/cell.model";
+import BoardSubgridLines from "./board-subgrid-lines";
 
 import styles from "./game-board.module.css";
 
@@ -93,18 +94,7 @@ function GameBoard({ handelGameDone }) {
       })}
 
       {/* 3x3 GRID DIVISION LINES */}
-      <div
-        className={`${styles["base-bar"]} ${styles["horizontal-base"]} ${styles["horizontal-1"]}`}
-      ></div>
-      <div
-        className={`${styles["base-bar"]} ${styles["horizontal-base"]} ${styles["horizontal-2"]}`}
-      ></div>
-      <div
-        className={`${styles["base-bar"]} ${styles["vertical-base"]} ${styles["vertical-1"]}`}
-      ></div>
-      <div
-        className={`${styles["base-bar"]} ${styles["vertical-base"]} ${styles["vertical-2"]}`}
-      ></div>
+      <BoardSubgridLines />
     </Grid>
   );
 }
