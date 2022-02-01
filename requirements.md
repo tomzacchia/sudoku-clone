@@ -22,6 +22,6 @@
 
 - ~~game header displays current difficulty~~
 
-- Navbar with website title
+- Timer
 
 - internationalization
