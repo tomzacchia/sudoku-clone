@@ -20,4 +20,8 @@
 
 - button that displays a menu to select a new game or to restart
 
-- game header displays current difficulty
+- ~~game header displays current difficulty~~
+
+- Navbar with website title
+
+- internationalization
