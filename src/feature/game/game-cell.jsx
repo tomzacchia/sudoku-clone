@@ -12,17 +12,12 @@ function GameCell({
   onKeyDownHandler,
   onClickHandler,
 }) {
-  // TODO: function that returns all styles in order of precendnce
-  let itemRootClass = styles["item-root"];
-  let shouldDisplayUserError =
+  const itemRootClass = getCellRootClasses(cellConfig);
+
+  const shouldDisplayUserError =
     cellConfig.errorCount > 0 && cellConfig.isInteractive;
-  const errorFlag = cellConfig.errorCount > 0;
 
-  if (cellConfig.highlightFlag)
-    itemRootClass += ` ${styles["item-root-highlight"]}`;
-
-  if (cellConfig.errorCount > 0 && !cellConfig.isInteractive)
-    itemRootClass += ` ${styles["item-non-interactive-error"]}`;
+  const userErrorFlag = cellConfig.errorCount > 0;
 
   return (
     <Grid item xs={1} classes={{ root: itemRootClass }}>
@@ -36,7 +31,7 @@ function GameCell({
         }}
         type="number"
         value={cellConfig.value}
-        error={errorFlag}
+        error={userErrorFlag}
         onChange={(event) => onChangeHandler(event, [coordX, coordY])}
         onKeyDown={onKeyDownHandler}
         onClick={() => onClickHandler(coordX, coordY)}
@@ -55,4 +50,18 @@ export default React.memo(GameCell, deepCompareStates);
 
 function deepCompareStates(prevProps, newProps) {
   return _.isEqual(prevProps.cellConfig, newProps.cellConfig);
+}
+
+function getCellRootClasses(cellConfig) {
+  let rootBase = styles["item-root"];
+  const shouldHighlightNonInteractiveError =
+    cellConfig.errorCount > 0 && !cellConfig.isInteractive;
+
+  if (shouldHighlightNonInteractiveError) {
+    rootBase += ` ${styles["item-non-interactive-error"]}`;
+  } else if (cellConfig.highlightFlag) {
+    rootBase += ` ${styles["item-root-highlight"]}`;
+  }
+
+  return rootBase;
 }

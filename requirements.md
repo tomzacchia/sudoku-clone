@@ -1,3 +1,7 @@
+### on page load
+
+- fetch new game from API
+
 ### dipsplay tip at the start of the game
 
 - click on 'x' to close tip modal
@@ -13,6 +17,10 @@
 - ~~if number is valid - highlight as default~~
 - ~~if number is invalid - highlight all matching numbers in all columns, rows and subgrids that contain the user's number~~
 - ~~display incorrect input in red font, red background for matching colors~~
+
+### user enters an arrow key (up, right, down, left)
+
+- switch focus
 
 ### Non-board related features
 
