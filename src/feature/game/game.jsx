@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import GameBoard from "./game-board";
 import { Card, Grid, StyledEngineProvider, Typography } from "@mui/material";
 import FinishMessage from "./finish-message";
+import GameHeader from "./game-header";
 
 function Game(props) {
   const [isGameDone, setIsGameDone] = useState(false);
@@ -12,27 +13,22 @@ function Game(props) {
 
   return (
     <StyledEngineProvider injectFirst>
+      <GameHeader />
+
       <Grid
         container
         justifyContent="center"
         flexDirection="column"
-        spacing={3}
-        style={{ height: "100vh" }}
+        sx={{ mt: 4 }}
       >
         <Grid
           item
           xs={5}
-          sx={{ m: "auto" }}
-          style={{ minHeight: "540px", minWidth: "590px" }}
+          sx={{ m: "auto", height: "540px", width: "590px" }}
+          // style={{ height: "540px", width: "590px" }}
         >
-          <Card>
-            <Typography variant="h5" sx={{ mb: 2, fontWeight: "bold" }}>
-              Difficulty: Easy
-            </Typography>
-          </Card>
           {!isGameDone && <GameBoard handelGameDone={handleGameDone} />}
           {isGameDone && <FinishMessage />}
-          {/* <FinishMessage /> */}
         </Grid>
         {/* TODO: CONTROLS */}
         {/* <Grid item xs={5}>
