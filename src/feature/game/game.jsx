@@ -1,11 +1,6 @@
 import React, { useState, useEffect } from "react";
 import GameBoard from "./game-board";
-import {
-  Box,
-  Grid,
-  StyledEngineProvider,
-  CircularProgress,
-} from "@mui/material";
+import { Grid, StyledEngineProvider } from "@mui/material";
 
 import FinishMessage from "./finish-message";
 import GameHeader from "./game-header";
