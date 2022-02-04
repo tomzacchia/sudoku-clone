@@ -32,15 +32,15 @@ function GameCell({
         type="number"
         value={cellConfig.value}
         error={userErrorFlag}
-        onChange={(event) => onChangeHandler(event, [coordX, coordY])}
-        onKeyDown={onKeyDownHandler}
-        onClick={() => onClickHandler(coordX, coordY)}
         disableUnderline={true}
         disabled={!cellConfig.isInteractive}
         inputProps={{
           min: 0,
           max: 9,
         }}
+        onChange={(event) => onChangeHandler(event, [coordX, coordY])}
+        onKeyDown={onKeyDownHandler}
+        onClick={() => onClickHandler(coordX, coordY)}
       />
     </Grid>
   );
