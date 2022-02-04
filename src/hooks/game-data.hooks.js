@@ -26,8 +26,8 @@ export function useGetBoardByDifficulty() {
   async function execute(options = {}) {
     setIsLoading(true);
     try {
+      setError(null);
       const board = await getBoardByDifficulty(options);
-      console.log(board);
       setBoard(board);
     } catch (error) {
       setError(error);
