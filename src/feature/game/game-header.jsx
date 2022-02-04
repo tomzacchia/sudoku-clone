@@ -10,9 +10,10 @@ function GameHeader(props) {
         </Typography>
       </Grid>
       <Grid item xs={3} textAlign="center" sx={{ pl: 2 }}>
-        <Typography variant="h5" sx={{ mb: 2, fontWeight: "bold" }}>
+        {/* TODO: TIMER */}
+        {/* <Typography variant="h5" sx={{ mb: 2, fontWeight: "bold" }}>
           01:00
-        </Typography>
+        </Typography> */}
       </Grid>
     </Grid>
   );
