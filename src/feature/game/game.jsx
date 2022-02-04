@@ -1,6 +1,11 @@
 import React, { useState, useEffect } from "react";
 import GameBoard from "./game-board";
-import { Card, Grid, StyledEngineProvider, Typography } from "@mui/material";
+import {
+  Box,
+  Grid,
+  StyledEngineProvider,
+  CircularProgress,
+} from "@mui/material";
 import FinishMessage from "./finish-message";
 import GameHeader from "./game-header";
 
@@ -19,6 +24,37 @@ function Game(props) {
     setIsGameDone(true);
   }
 
+  function getGameContent() {
+    let content;
+
+    if (board)
+      content = <GameBoard board={board} handelGameDone={handleGameDone} />;
+
+    if (isGameDone) content = <FinishMessage />;
+
+    if (error) content = <p> Error Loading Data </p>;
+
+    if (isLoading)
+      content = (
+        <Box
+          sx={{
+            height: "100%",
+            width: "100%",
+            display: "flex",
+            flex: 1,
+          }}
+          justifyContent="center"
+          alignItems="center"
+        >
+          <CircularProgress
+            sx={{ height: "100px !important", width: "100px !important" }}
+          />
+        </Box>
+      );
+
+    return content;
+  }
+
   return (
     <StyledEngineProvider injectFirst>
       <GameHeader />
@@ -32,11 +68,29 @@ function Game(props) {
         <Grid
           item
           xs={5}
-          sx={{ m: "auto", height: "540px", width: "590px" }}
-          // style={{ height: "540px", width: "590px" }}
+          sx={{
+            m: "auto",
+            minHeight: "454px",
+            width: "590px",
+            display: "flex",
+          }}
+          flexDirection="column"
         >
-          {!isGameDone && <GameBoard handelGameDone={handleGameDone} />}
-          {isGameDone && <FinishMessage />}
+          {getGameContent()}
+          {/* <Box
+            sx={{
+              height: "100%",
+              width: "100%",
+              display: "flex",
+              flex: 1,
+            }}
+            justifyContent="center"
+            alignItems="center"
+          >
+            <CircularProgress
+              sx={{ height: "100px !important", width: "100px !important" }}
+            />
+          </Box> */}
         </Grid>
         {/* TODO: CONTROLS */}
         {/* <Grid item xs={5}>

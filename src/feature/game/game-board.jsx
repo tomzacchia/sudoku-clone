@@ -8,8 +8,8 @@ import Cell from "models/cell.model";
 
 import styles from "./game-board.module.css";
 
-function GameBoard({ handelGameDone }) {
-  const [gameState, setGameState] = useState(initializeState());
+function GameBoard({ board, handelGameDone }) {
+  const [gameState, setGameState] = useState(initializeState(board));
 
   useEffect(() => {
     const isUserSolutionValid = isSolutionValid(
@@ -127,8 +127,11 @@ function deepCompareStates(prevProps, newProps) {
   return _.isEqual(prevProps.cellConfig, newProps.cellConfig);
 }
 
-function initializeState() {
-  return DUMMY_BOARD.map((row) => row.map((value) => new Cell(value)));
+function initializeState(board) {
+  const boardWithoutZeros = board.map((row) =>
+    row.map((value) => (value ? value : ""))
+  );
+  return boardWithoutZeros.map((row) => row.map((value) => new Cell(value)));
 }
 
 function extractValuesFromBoard(boardData) {
