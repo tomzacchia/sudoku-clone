@@ -1,11 +1,19 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import GameBoard from "./game-board";
 import { Card, Grid, StyledEngineProvider, Typography } from "@mui/material";
 import FinishMessage from "./finish-message";
 import GameHeader from "./game-header";
 
+import { useGetBoardByDifficulty } from "hooks/game-data.hooks";
+
 function Game(props) {
+  const { isLoading, error, board, execute } = useGetBoardByDifficulty();
   const [isGameDone, setIsGameDone] = useState(false);
+
+  useEffect(() => {
+    console.log("getting initial data");
+    execute({ difficulty: "easy" });
+  }, [execute]);
 
   function handleGameDone() {
     setIsGameDone(true);
