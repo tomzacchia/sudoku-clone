@@ -6,17 +6,18 @@ import {
   StyledEngineProvider,
   CircularProgress,
 } from "@mui/material";
+
 import FinishMessage from "./finish-message";
 import GameHeader from "./game-header";
 
 import { useGetBoardByDifficulty } from "hooks/game-data.hooks";
+import CenteredSpinner from "components/centered-spinner";
 
 function Game(props) {
   const { isLoading, error, board, execute } = useGetBoardByDifficulty();
   const [isGameDone, setIsGameDone] = useState(false);
 
   useEffect(() => {
-    console.log("getting initial data");
     execute({ difficulty: "easy" });
   }, [execute]);
 
@@ -36,20 +37,10 @@ function Game(props) {
 
     if (isLoading)
       content = (
-        <Box
-          sx={{
-            height: "100%",
-            width: "100%",
-            display: "flex",
-            flex: 1,
-          }}
-          justifyContent="center"
-          alignItems="center"
-        >
-          <CircularProgress
-            sx={{ height: "100px !important", width: "100px !important" }}
-          />
-        </Box>
+        <CenteredSpinner
+          progressHeight={"100px !important"}
+          progressWidth={"100px !important"}
+        />
       );
 
     return content;
@@ -77,20 +68,6 @@ function Game(props) {
           flexDirection="column"
         >
           {getGameContent()}
-          {/* <Box
-            sx={{
-              height: "100%",
-              width: "100%",
-              display: "flex",
-              flex: 1,
-            }}
-            justifyContent="center"
-            alignItems="center"
-          >
-            <CircularProgress
-              sx={{ height: "100px !important", width: "100px !important" }}
-            />
-          </Box> */}
         </Grid>
         {/* TODO: CONTROLS */}
         {/* <Grid item xs={5}>
