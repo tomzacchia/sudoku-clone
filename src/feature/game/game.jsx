@@ -1,14 +1,49 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import GameBoard from "./game-board";
-import { Card, Grid, StyledEngineProvider, Typography } from "@mui/material";
+import {
+  Box,
+  Grid,
+  StyledEngineProvider,
+  CircularProgress,
+} from "@mui/material";
+
 import FinishMessage from "./finish-message";
 import GameHeader from "./game-header";
 
+import { useGetBoardByDifficulty } from "hooks/game-data.hooks";
+import CenteredSpinner from "components/centered-spinner";
+
 function Game(props) {
+  const { isLoading, error, board, execute } = useGetBoardByDifficulty();
   const [isGameDone, setIsGameDone] = useState(false);
+
+  useEffect(() => {
+    execute({ difficulty: "easy" });
+  }, [execute]);
 
   function handleGameDone() {
     setIsGameDone(true);
+  }
+
+  function getGameContent() {
+    let content;
+
+    if (board)
+      content = <GameBoard board={board} handelGameDone={handleGameDone} />;
+
+    if (isGameDone) content = <FinishMessage />;
+
+    if (error) content = <p> Error Loading Data </p>;
+
+    if (isLoading)
+      content = (
+        <CenteredSpinner
+          progressHeight={"100px !important"}
+          progressWidth={"100px !important"}
+        />
+      );
+
+    return content;
   }
 
   return (
@@ -24,11 +59,15 @@ function Game(props) {
         <Grid
           item
           xs={5}
-          sx={{ m: "auto", height: "540px", width: "590px" }}
-          // style={{ height: "540px", width: "590px" }}
+          sx={{
+            m: "auto",
+            minHeight: "454px",
+            width: "590px",
+            display: "flex",
+          }}
+          flexDirection="column"
         >
-          {!isGameDone && <GameBoard handelGameDone={handleGameDone} />}
-          {isGameDone && <FinishMessage />}
+          {getGameContent()}
         </Grid>
         {/* TODO: CONTROLS */}
         {/* <Grid item xs={5}>
