@@ -1,6 +1,7 @@
 ### on page load
 
 - fetch new game from API
+- check localStorage for
 
 ### dipsplay tip at the start of the game
 
@@ -26,7 +27,7 @@
 
 - ~~on completion a message is displayed~~
 
-- button that displays a menu to select a new game or to restart
+- button below board for selecting difficulty and resetting the board
 
 - ~~game header displays current difficulty~~
 
