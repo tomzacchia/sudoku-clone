@@ -4,20 +4,27 @@ import { Grid, StyledEngineProvider } from "@mui/material";
 
 import FinishMessage from "./finish-message";
 import GameHeader from "./game-header";
+import Controls from "./controls";
 
 import { useGetBoardByDifficulty } from "hooks/game-data.hooks";
 import CenteredSpinner from "components/centered-spinner";
 
 function Game(props) {
-  const { isLoading, error, board, execute } = useGetBoardByDifficulty();
+  const { isLoading, error, board, getBoardData } = useGetBoardByDifficulty();
+  const [difficulty, setDifficulty] = useState("easy");
   const [isGameDone, setIsGameDone] = useState(false);
 
   useEffect(() => {
-    execute({ difficulty: "easy" });
-  }, [execute]);
+    getBoardData({ difficulty: "easy" });
+  }, [getBoardData]);
 
   function handleGameDone() {
     setIsGameDone(true);
+  }
+
+  function handleDifficultySelection(difficulty) {
+    setDifficulty(difficulty);
+    getBoardData({ difficulty: difficulty });
   }
 
   function getGameContent() {
@@ -43,13 +50,14 @@ function Game(props) {
 
   return (
     <StyledEngineProvider injectFirst>
-      <GameHeader />
+      <GameHeader difficulty={difficulty} />
 
       <Grid
         container
-        justifyContent="center"
         flexDirection="column"
-        sx={{ mt: 4 }}
+        justifyContent="center"
+        alignItems="center"
+        sx={{ mt: 2 }}
       >
         <Grid
           item
@@ -64,10 +72,10 @@ function Game(props) {
         >
           {getGameContent()}
         </Grid>
-        {/* TODO: CONTROLS */}
-        {/* <Grid item xs={5}>
-          <section> CONTROLS </section>
-        </Grid> */}
+
+        <Grid item xs={5} sx={{ mt: 2 }}>
+          <Controls onClick={handleDifficultySelection} />
+        </Grid>
       </Grid>
     </StyledEngineProvider>
   );
