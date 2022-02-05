@@ -9,7 +9,7 @@ class JSONStorage {
   set(key, value) {
     const str = JSON.stringify(value);
     if (typeof str === "undefined") return this.storage.removeItem(key);
-    this.storage.setItem(key, value);
+    this.storage.setItem(key, str);
   }
   get(key) {
     const str = this.storage.getItem(key);
