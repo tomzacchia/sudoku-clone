@@ -15,7 +15,12 @@ function Game(props) {
   const [isGameDone, setIsGameDone] = useState(false);
 
   useEffect(() => {
+    // todo: on refresh check if untouched and user board exist in local
+
+    // TODO: add state for user Board, every API call causes update in localStorage
     getBoardData({ difficulty: "easy" });
+    // todo: only fetch if userBoard and untouchedBoard do not exist, save in local and to state
+    // todo: on reset set userBoard state to untouchedBoard
   }, [getBoardData]);
 
   function handleGameDone() {
@@ -23,8 +28,14 @@ function Game(props) {
   }
 
   function handleDifficultySelection(difficulty) {
+    // todo: clear local storage and state
     setDifficulty(difficulty);
     getBoardData({ difficulty: difficulty });
+  }
+
+  function handleReset() {
+    // clear userBoard in localStorage
+    // clear userBoard in component state
   }
 
   function getGameContent() {
