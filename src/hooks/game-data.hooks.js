@@ -23,7 +23,7 @@ export function useGetBoardByDifficulty() {
   const [error, setError] = useState(null);
   const [board, setBoard] = useState(null);
 
-  async function execute(options = {}) {
+  async function getBoardData(options = {}) {
     setIsLoading(true);
     try {
       setError(null);
@@ -39,6 +39,6 @@ export function useGetBoardByDifficulty() {
     isLoading,
     error,
     board,
-    execute: useCallback(execute, []),
+    getBoardData: useCallback(getBoardData, []),
   };
 }
