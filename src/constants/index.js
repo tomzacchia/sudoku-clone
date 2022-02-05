@@ -13,3 +13,10 @@ export const DUMMY_BOARD = [
 ];
 
 export const difficulties = ["easy", "medium", "hard"];
+
+export const localStorageKeys = {
+  untouchedBoard: "untouchedBoard",
+  userBoard: "userBoard",
+  difficulty: "difficulty",
+  showGametip: "showGametip",
+};
