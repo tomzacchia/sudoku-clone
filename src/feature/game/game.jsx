@@ -31,6 +31,7 @@ function Game(props) {
     const isResetGame = !userBoard;
 
     if (isNewGame) {
+      setIsGameDone(false);
       async function fetchData() {
         const data = await getBoardData({ difficulty: difficulty });
         setUntouchedBoard(data);
@@ -42,6 +43,7 @@ function Game(props) {
 
       fetchData();
     } else if (isResetGame) {
+      setIsGameDone(false);
       setUserBoard(untouchedBoard);
       setIsLoading(false);
       localStorage.set(localStorageKeys.userBoard, untouchedBoard);
@@ -76,7 +78,7 @@ function Game(props) {
         />
       );
 
-    if (isGameDone) content = <FinishMessage />;
+    if (isGameDone) content = <FinishMessage difficulty={difficulty} />;
 
     if (error) content = <p> Error Loading Data </p>;
 

@@ -4,7 +4,7 @@ import { Grid } from "@mui/material";
 
 import styles from "./finish-message.module.css";
 
-function FinishMessage(props) {
+function FinishMessage({ difficulty }) {
   return (
     <Card className={styles["card-root"]}>
       <CardContent style={{ margin: "auto", minWidth: "200px" }}>
@@ -13,8 +13,8 @@ function FinishMessage(props) {
         </Typography>
         <Grid container justifyContent="space-between" sx={{ mt: 4 }}>
           <Typography variant="h5"> Difficulty </Typography>
-          {/* TODO: get rid fo placeholder */}
-          <Typography variant="h5"> Easy </Typography>
+
+          <Typography variant="h5"> {difficulty} </Typography>
         </Grid>
       </CardContent>
     </Card>
