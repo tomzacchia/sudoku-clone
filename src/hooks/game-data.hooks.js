@@ -1,6 +1,8 @@
 import { useState, useCallback } from "react";
 import { sugokuBoardURI } from "utilities/network";
 
+import { DUMMY_BOARD } from "constants";
+
 /**
  *
  * @param {*} params | {difficulty: "easy" || "medium || "hard"}
@@ -23,6 +25,7 @@ export function useGetBoardByDifficulty() {
   const [error, setError] = useState(null);
 
   async function getBoardData(options = {}) {
+    if (options.difficulty === "demo") return DUMMY_BOARD;
     setIsLoading(true);
     setError(null);
     try {
