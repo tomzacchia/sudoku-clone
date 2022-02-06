@@ -15,14 +15,15 @@ function Game(props) {
   const { isLoading, error, setIsLoading, getBoardData } =
     useGetBoardByDifficulty();
   const [untouchedBoard, setUntouchedBoard] = useState(() =>
-    getFromLocalByKey("untouchedBoard")
+    getFromLocalByKey(localStorageKeys.untouchedBoard)
   );
   const [userBoard, setUserBoard] = useState(() =>
-    getFromLocalByKey("userboard")
+    getFromLocalByKey(localStorageKeys.userBoard)
   );
   const [difficulty, setDifficulty] = useState("easy");
   const [isGameDone, setIsGameDone] = useState(false);
 
+  // All side effects (fetching from API or localStorae) are contained here
   useEffect(() => {
     const isNewGame = !userBoard && !untouchedBoard;
     const isResetGame = !userBoard;
@@ -64,7 +65,13 @@ function Game(props) {
     let content;
 
     if (userBoard)
-      content = <GameBoard board={userBoard} handelGameDone={handleGameDone} />;
+      content = (
+        <GameBoard
+          userBoard={userBoard}
+          untouchedBoard={untouchedBoard}
+          handelGameDone={handleGameDone}
+        />
+      );
 
     if (isGameDone) content = <FinishMessage />;
 
