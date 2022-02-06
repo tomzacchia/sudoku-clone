@@ -1,7 +1,8 @@
 ### on page load
 
 - fetch new game from API
-- check localStorage for
+- ~~check localStorage for existing user data~~
+- if user data differs from original data, show this difference in UI
 
 ### dipsplay tip at the start of the game
 
@@ -27,10 +28,12 @@
 
 - ~~on completion a message is displayed~~
 
-- button below board for selecting difficulty and resetting the board
+- ~~button below board for selecting difficulty and resetting the board~~
 
 - ~~game header displays current difficulty~~
 
 - Timer
 
 - internationalization
+
+- demo button to show UX as game ends

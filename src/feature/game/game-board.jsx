@@ -23,6 +23,8 @@ function GameBoard({ board, handelGameDone }) {
     }
   });
 
+  // TODO: update userBoard in local on keypress
+
   /**
    *
    * @param {*} event | Event object

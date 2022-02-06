@@ -21,24 +21,24 @@ export async function getBoardByDifficulty(params) {
 export function useGetBoardByDifficulty() {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState(null);
-  const [board, setBoard] = useState(null);
 
-  async function execute(options = {}) {
+  async function getBoardData(options = {}) {
     setIsLoading(true);
+    setError(null);
     try {
-      setError(null);
       const board = await getBoardByDifficulty(options);
-      setBoard(board);
+      setIsLoading(false);
+      return board;
     } catch (error) {
       setError(error);
+      setIsLoading(false);
     }
-    setIsLoading(false);
   }
 
   return {
     isLoading,
     error,
-    board,
-    execute: useCallback(execute, []),
+    setIsLoading,
+    getBoardData: useCallback(getBoardData, []),
   };
 }
