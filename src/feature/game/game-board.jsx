@@ -13,10 +13,10 @@ import styles from "./game-board.module.css";
 function GameBoard({ untouchedBoard, userBoard, handelGameDone }) {
   const [gameState, setGameState] = useState(
     initializeState(untouchedBoard, userBoard)
+    // initializeState(DUMMY_BOARD, DUMMY_BOARD)
   );
 
   useEffect(() => {
-    // TODO: test solution
     const extractedValues = extractValuesFromBoard(gameState);
     localStorage.set(localStorageKeys.userBoard, extractedValues);
 
@@ -110,9 +110,14 @@ function deepCompareStates(prevProps, newProps) {
   return _.isEqual(prevProps.cellConfig, newProps.cellConfig);
 }
 
-// TODO: update all cells for errors
+/**
+ * maps untouchedBoard to Cells and updates error count for every cell
+ * @param {*} untouchedBoard | from localStorage
+ * @param {*} userBoard | from localStorage
+ * @returns
+ */
 function initializeState(untouchedBoard, userBoard) {
-  return untouchedBoard.map((row, coordX) =>
+  const formattedBoard = untouchedBoard.map((row, coordX) =>
     row.map((value, coordY) => {
       const cellValue = value || ""; // 0 stored in 2D array defaults to ""
       const isCellInterative = !cellValue;
@@ -121,6 +126,26 @@ function initializeState(untouchedBoard, userBoard) {
       return new Cell(cellValue || userBoardValue, isCellInterative);
     })
   );
+
+  const allIndexes = getAllBoardIndexes();
+  const boardWithErrorsUpdated = updateErrorCountForIndexes(
+    allIndexes,
+    _.cloneDeep(formattedBoard)
+  );
+
+  return boardWithErrorsUpdated;
+}
+
+function getAllBoardIndexes() {
+  const indexes = [];
+
+  for (let row = 0; row < BOARD_LENGTH; row++) {
+    for (let column = 0; column < BOARD_LENGTH; column++) {
+      indexes.push([row, column]);
+    }
+  }
+
+  return indexes;
 }
 
 function extractValuesFromBoard(boardData) {
