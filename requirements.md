@@ -3,7 +3,7 @@
 - ~~fetch new game from API~~
 - ~~check localStorage for existing user data~~
 - ~~if user data differs from original data, show this difference in UI~~
-- get difficulty from localStorage, default to "easy"
+- ~~get difficulty from localStorage, default to "easy"~~
 
 ### dipsplay tip at the start of the game
 
@@ -37,4 +37,4 @@
 
 - internationalization
 
-- demo button to show UX as game ends
+- ~~demo button to show UX as game ends~~
