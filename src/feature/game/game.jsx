@@ -20,7 +20,9 @@ function Game(props) {
   const [userBoard, setUserBoard] = useState(() =>
     getFromLocalByKey(localStorageKeys.userBoard)
   );
-  const [difficulty, setDifficulty] = useState("easy");
+  const [difficulty, setDifficulty] = useState(
+    () => getFromLocalByKey(localStorageKeys.difficulty) || "easy"
+  );
   const [isGameDone, setIsGameDone] = useState(false);
 
   // All side effects (fetching from API or localStorae) are contained here
@@ -44,6 +46,7 @@ function Game(props) {
       setIsLoading(false);
       localStorage.set(localStorageKeys.userBoard, untouchedBoard);
     }
+    localStorage.set(localStorageKeys.difficulty, difficulty);
   }, [getBoardData, untouchedBoard, userBoard, difficulty, setIsLoading]);
 
   function handleGameDone() {
