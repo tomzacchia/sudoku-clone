@@ -1,0 +1,41 @@
+.item-root {
+  width: 50px;
+  height: 50px;
+  border: solid thin #bec6d4;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.item-root-highlight {
+  background-color: #e2ebf3;
+}
+
+.item-non-interactive-error {
+  background-color: #f7cfd6;
+}
+
+.user-error {
+  color: red !important;
+}
+
+.input-root {
+  width: 100%;
+  color: #2572e3;
+}
+
+.input {
+  text-align: center;
+  width: 100%;
+  font-size: 26px;
+}
+
+.input-non-interactive {
+  -webkit-text-fill-color: #3d5169 !important;
+}
+
+.input::-webkit-outer-spin-button,
+.input::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
