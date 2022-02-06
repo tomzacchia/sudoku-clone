@@ -117,7 +117,10 @@ function Game(props) {
         </Grid>
 
         <Grid item xs={5} sx={{ mt: 2 }}>
-          <Controls onClick={handleDifficultySelection} />
+          <Controls
+            onDifficultyClick={handleDifficultySelection}
+            onResetClick={handleReset}
+          />
         </Grid>
       </Grid>
     </StyledEngineProvider>
