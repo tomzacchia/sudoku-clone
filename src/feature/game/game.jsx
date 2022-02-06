@@ -12,7 +12,8 @@ import Controls from "./controls";
 import CenteredSpinner from "components/centered-spinner";
 
 function Game(props) {
-  const { isLoading, error, getBoardData } = useGetBoardByDifficulty();
+  const { isLoading, error, setIsLoading, getBoardData } =
+    useGetBoardByDifficulty();
   const [untouchedBoard, setUntouchedBoard] = useState(() =>
     getFromLocalByKey("untouchedBoard")
   );
@@ -37,13 +38,12 @@ function Game(props) {
       }
 
       fetchData();
+    } else if (isResetGame) {
+      setUserBoard(untouchedBoard);
+      setIsLoading(false);
+      localStorage.set(localStorageKeys.userBoard, untouchedBoard);
     }
-    // todo: on refresh check if untouched and user board exist in local
-
-    // TODO: add state for user Board, every API call causes update in localStorage
-    // todo: only fetch if userBoard and untouchedBoard do not exist, save in local and to state
-    // todo: on reset set userBoard state to untouchedBoard
-  }, [getBoardData, untouchedBoard, userBoard, difficulty]);
+  }, [getBoardData, untouchedBoard, userBoard, difficulty, setIsLoading]);
 
   function handleGameDone() {
     setIsGameDone(true);
@@ -56,17 +56,15 @@ function Game(props) {
   }
 
   function handleReset() {
-    // clear userBoard in localStorage
-    // clear userBoard in component state
+    setUserBoard(null);
+    setIsLoading(true);
   }
 
   function getGameContent() {
     let content;
 
-    if (untouchedBoard)
-      content = (
-        <GameBoard board={untouchedBoard} handelGameDone={handleGameDone} />
-      );
+    if (userBoard)
+      content = <GameBoard board={userBoard} handelGameDone={handleGameDone} />;
 
     if (isGameDone) content = <FinishMessage />;
 
