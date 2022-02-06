@@ -1,19 +1,32 @@
-import { Button } from "@mui/material";
+import React from "react";
 
+import { Button } from "@mui/material";
 import { difficulties } from "constants";
 
-function Controls({ onClick }) {
-  const content = difficulties.map((difficulty) => (
+function Controls({ onDifficultyClick, onResetClick }) {
+  const difficultiesButtons = difficulties.map((difficulty) => (
     <Button
       key={difficulty}
-      onClick={() => onClick(difficulty)}
+      onClick={() => onDifficultyClick(difficulty)}
       variant="outlined"
       sx={{ ml: 2, mr: 2 }}
     >
       {difficulty}
     </Button>
   ));
-  return content;
+  return (
+    <React.Fragment>
+      {difficultiesButtons}
+      <Button
+        onClick={onResetClick}
+        variant="outlined"
+        color="error"
+        sx={{ ml: 2, mr: 2 }}
+      >
+        reset
+      </Button>
+    </React.Fragment>
+  );
 }
 
 export default Controls;

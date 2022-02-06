@@ -15,19 +15,23 @@ function Game(props) {
   const { isLoading, error, setIsLoading, getBoardData } =
     useGetBoardByDifficulty();
   const [untouchedBoard, setUntouchedBoard] = useState(() =>
-    getFromLocalByKey("untouchedBoard")
+    getFromLocalByKey(localStorageKeys.untouchedBoard)
   );
   const [userBoard, setUserBoard] = useState(() =>
-    getFromLocalByKey("userboard")
+    getFromLocalByKey(localStorageKeys.userBoard)
   );
-  const [difficulty, setDifficulty] = useState("easy");
+  const [difficulty, setDifficulty] = useState(
+    () => getFromLocalByKey(localStorageKeys.difficulty) || "easy"
+  );
   const [isGameDone, setIsGameDone] = useState(false);
 
+  // All side effects (fetching from API or localStorae) are contained here
   useEffect(() => {
     const isNewGame = !userBoard && !untouchedBoard;
     const isResetGame = !userBoard;
 
     if (isNewGame) {
+      setIsGameDone(false);
       async function fetchData() {
         const data = await getBoardData({ difficulty: difficulty });
         setUntouchedBoard(data);
@@ -39,10 +43,12 @@ function Game(props) {
 
       fetchData();
     } else if (isResetGame) {
+      setIsGameDone(false);
       setUserBoard(untouchedBoard);
       setIsLoading(false);
       localStorage.set(localStorageKeys.userBoard, untouchedBoard);
     }
+    localStorage.set(localStorageKeys.difficulty, difficulty);
   }, [getBoardData, untouchedBoard, userBoard, difficulty, setIsLoading]);
 
   function handleGameDone() {
@@ -64,9 +70,15 @@ function Game(props) {
     let content;
 
     if (userBoard)
-      content = <GameBoard board={userBoard} handelGameDone={handleGameDone} />;
+      content = (
+        <GameBoard
+          userBoard={userBoard}
+          untouchedBoard={untouchedBoard}
+          handelGameDone={handleGameDone}
+        />
+      );
 
-    if (isGameDone) content = <FinishMessage />;
+    if (isGameDone) content = <FinishMessage difficulty={difficulty} />;
 
     if (error) content = <p> Error Loading Data </p>;
 
@@ -107,7 +119,10 @@ function Game(props) {
         </Grid>
 
         <Grid item xs={5} sx={{ mt: 2 }}>
-          <Controls onClick={handleDifficultySelection} />
+          <Controls
+            onDifficultyClick={handleDifficultySelection}
+            onResetClick={handleReset}
+          />
         </Grid>
       </Grid>
     </StyledEngineProvider>

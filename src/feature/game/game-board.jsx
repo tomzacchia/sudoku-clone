@@ -2,28 +2,31 @@ import { Grid } from "@mui/material";
 import React, { useEffect, useState } from "react";
 import _ from "lodash";
 import GameCell from "./game-cell";
-import { DUMMY_BOARD, BOARD_LENGTH } from "constants";
+import { DUMMY_BOARD, BOARD_LENGTH, localStorageKeys } from "constants";
 import isSolutionValid from "utilities/sudoko-solver";
 import Cell from "models/cell.model";
 import BoardSubgridLines from "./board-subgrid-lines";
+import { localStorage } from "utilities/local-storage";
 
 import styles from "./game-board.module.css";
 
-function GameBoard({ board, handelGameDone }) {
-  const [gameState, setGameState] = useState(initializeState(board));
+function GameBoard({ untouchedBoard, userBoard, handelGameDone }) {
+  const [gameState, setGameState] = useState(
+    initializeState(untouchedBoard, userBoard)
+    // initializeState(DUMMY_BOARD, DUMMY_BOARD)
+  );
 
   useEffect(() => {
-    const isUserSolutionValid = isSolutionValid(
-      extractValuesFromBoard(gameState)
-    );
+    const extractedValues = extractValuesFromBoard(gameState);
+    localStorage.set(localStorageKeys.userBoard, extractedValues);
+
+    const isUserSolutionValid = isSolutionValid(extractedValues);
 
     if (isUserSolutionValid) {
       console.log("congrats!");
       handelGameDone();
     }
-  });
-
-  // TODO: update userBoard in local on keypress
+  }, [gameState, handelGameDone]);
 
   /**
    *
@@ -107,15 +110,48 @@ function deepCompareStates(prevProps, newProps) {
   return _.isEqual(prevProps.cellConfig, newProps.cellConfig);
 }
 
-function initializeState(board) {
-  const boardWithoutZeros = board.map((row) =>
-    row.map((value) => (value ? value : ""))
+/**
+ * maps untouchedBoard to Cells and updates error count for every cell
+ * @param {*} untouchedBoard | from localStorage
+ * @param {*} userBoard | from localStorage
+ * @returns
+ */
+function initializeState(untouchedBoard, userBoard) {
+  const formattedBoard = untouchedBoard.map((row, coordX) =>
+    row.map((value, coordY) => {
+      const cellValue = value || ""; // 0 stored in 2D array defaults to ""
+      const isCellInterative = !cellValue;
+      const userBoardValue = userBoard[coordX][coordY] || "";
+
+      return new Cell(cellValue || userBoardValue, isCellInterative);
+    })
   );
-  return boardWithoutZeros.map((row) => row.map((value) => new Cell(value)));
+
+  const allIndexes = getAllBoardIndexes();
+  const boardWithErrorsUpdated = updateErrorCountForIndexes(
+    allIndexes,
+    _.cloneDeep(formattedBoard)
+  );
+
+  return boardWithErrorsUpdated;
+}
+
+function getAllBoardIndexes() {
+  const indexes = [];
+
+  for (let row = 0; row < BOARD_LENGTH; row++) {
+    for (let column = 0; column < BOARD_LENGTH; column++) {
+      indexes.push([row, column]);
+    }
+  }
+
+  return indexes;
 }
 
 function extractValuesFromBoard(boardData) {
-  return boardData.map((row) => row.map((cell) => cell.value));
+  return boardData.map((row) =>
+    row.map((cell) => (cell.value ? cell.value : 0))
+  );
 }
 
 function updateValueAtCoord(rawValue, coord, boardData) {
