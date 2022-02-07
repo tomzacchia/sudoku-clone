@@ -1,3 +1,3 @@
 ## About The Project
 
-<img src="./website_pic.png" height="350px" width: "auto"/>
+<img src="./website_pic.png" styles="height: 450px; width: auto"/>
