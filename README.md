@@ -22,6 +22,7 @@ I was recently going over some React topics by [Academind](https://github.com/ac
 - [x] Highlighting user selection as well as any errors
 - [ ] Add feature for writing notes
 - [ ] Add highlighting all values indentical to user selectio (i.e all 4s on board highlighted)
+- [ ] Redux to cleanly control transition between game states (new game, restart, note mode, window refresh)
 
 ## Some Interesting Snippets
 - [Application of currying and generalized functions](https://snipit.io/public/lists/19373/62829)
