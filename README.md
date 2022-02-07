@@ -12,8 +12,8 @@ I was recently going over some React topics by [Academind](https://github.com/ac
 
 ![React](https://img.shields.io/badge/React-61DAFB?logo=react&logoColor=white&style=for-the-badge)
 [![Vercel](https://img.shields.io/static/v1?label=&message=Vercel&color=%23000000&style=for-the-badge&logo=Vercel)](https://vercel.com/)
-[![Lodash](https://img.shields.io/static/v1?label=&message=Lodash&color=%233492FF&logo=Lodash&logoColor=white)](https://lodash.com/)
-[![Material UI](https://img.shields.io/static/v1?label=&message=Material+UI&color=%23236cd9&logo=Material+Design&logoColor=white)](https://lodash.com/)
+[![Lodash](https://img.shields.io/static/v1?label=&message=Lodash&color=%233492FF&style=for-the-badge&logo=lodash&logoColor=white)](lodash.com)
+[![Material UI](https://img.shields.io/static/v1?label=&message=Material+UI&color=236cd9&style=for-the-badge&logo=Material+Design&logoColor=white)](https://mui.com/)
 
 ## Roadmap
 
