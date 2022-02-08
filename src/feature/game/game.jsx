@@ -17,39 +17,27 @@ function Game(props) {
   const [untouchedBoard, setUntouchedBoard] = useState(() =>
     getFromLocalByKey(localStorageKeys.untouchedBoard)
   );
-  const [userBoard, setUserBoard] = useState(() =>
-    getFromLocalByKey(localStorageKeys.userBoard)
-  );
   const [difficulty, setDifficulty] = useState(
     () => getFromLocalByKey(localStorageKeys.difficulty) || "easy"
   );
   const [isGameDone, setIsGameDone] = useState(false);
 
-  // All side effects (fetching from API or localStorae) are contained here
   useEffect(() => {
-    const isNewGame = !userBoard && !untouchedBoard;
-    const isResetGame = !userBoard;
+    const isNewGame = !untouchedBoard;
 
     if (isNewGame) {
       setIsGameDone(false);
       async function fetchData() {
         const data = await getBoardData({ difficulty: difficulty });
         setUntouchedBoard(data);
-        setUserBoard(data);
 
         localStorage.set(localStorageKeys.untouchedBoard, data);
-        localStorage.set(localStorageKeys.userBoard, data);
       }
 
       fetchData();
-    } else if (isResetGame) {
-      setIsGameDone(false);
-      setUserBoard(untouchedBoard);
-      setIsLoading(false);
-      localStorage.set(localStorageKeys.userBoard, untouchedBoard);
     }
     localStorage.set(localStorageKeys.difficulty, difficulty);
-  }, [getBoardData, untouchedBoard, userBoard, difficulty, setIsLoading]);
+  }, [getBoardData, untouchedBoard, difficulty]);
 
   function handleGameDone() {
     setIsGameDone(true);
@@ -57,22 +45,27 @@ function Game(props) {
 
   function handleDifficultySelection(difficulty) {
     setDifficulty(difficulty);
-    setUserBoard(null);
     setUntouchedBoard(null);
+
+    localStorage.remove(localStorageKeys.untouchedBoard);
+    localStorage.remove(localStorageKeys.userBoard);
   }
 
   function handleReset() {
-    setUserBoard(null);
     setIsLoading(true);
+    localStorage.set(localStorageKeys.userBoard, untouchedBoard);
+
+    setTimeout(() => {
+      setIsLoading(false);
+    }, 300);
   }
 
   function getGameContent() {
     let content;
 
-    if (userBoard)
+    if (untouchedBoard)
       content = (
         <GameBoard
-          userBoard={userBoard}
           untouchedBoard={untouchedBoard}
           handelGameDone={handleGameDone}
         />
@@ -122,6 +115,7 @@ function Game(props) {
           <Controls
             onDifficultyClick={handleDifficultySelection}
             onResetClick={handleReset}
+            disabledReset={isGameDone}
           />
         </Grid>
       </Grid>
