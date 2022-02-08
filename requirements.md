@@ -7,8 +7,8 @@
 
 ### dipsplay tip at the start of the game
 
-- click on 'x' to close tip modal
-- persist user state in localStorage to hide tip on refresh
+- ~~click on 'x' to close tip modal~~
+- ~~persist user state in localStorage to hide tip on refresh~~
 
 ### user can select cell by clicking
 

@@ -10,11 +10,11 @@ import { localStorage } from "utilities/local-storage";
 
 import styles from "./game-board.module.css";
 
-function GameBoard({ untouchedBoard, userBoard, handelGameDone }) {
-  const [gameState, setGameState] = useState(
-    initializeState(untouchedBoard, userBoard)
-    // initializeState(DUMMY_BOARD, DUMMY_BOARD)
-  );
+function GameBoard({ untouchedBoard, handelGameDone }) {
+  const [gameState, setGameState] = useState(() => {
+    const userBoard = localStorage.get(localStorageKeys.userBoard);
+    return initializeState(untouchedBoard, userBoard);
+  });
 
   useEffect(() => {
     const extractedValues = extractValuesFromBoard(gameState);
@@ -121,7 +121,7 @@ function initializeState(untouchedBoard, userBoard) {
     row.map((value, coordY) => {
       const cellValue = value || ""; // 0 stored in 2D array defaults to ""
       const isCellInterative = !cellValue;
-      const userBoardValue = userBoard[coordX][coordY] || "";
+      const userBoardValue = (userBoard && userBoard[coordX][coordY]) || "";
 
       return new Cell(cellValue || userBoardValue, isCellInterative);
     })
