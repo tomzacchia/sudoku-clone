@@ -27,11 +27,15 @@ function Game(props) {
 
     if (isNewGame) {
       setIsGameDone(false);
+      localStorage.remove(localStorageKeys.untouchedBoard);
+      localStorage.remove(localStorageKeys.userBoard);
+
       async function fetchData() {
         const data = await getBoardData({ difficulty: difficulty });
         setUntouchedBoard(data);
 
         localStorage.set(localStorageKeys.untouchedBoard, data);
+        // NOTE: GameBoard component sets userBoard in localStorage
       }
 
       fetchData();
@@ -46,18 +50,19 @@ function Game(props) {
   function handleDifficultySelection(difficulty) {
     setDifficulty(difficulty);
     setUntouchedBoard(null);
-
-    localStorage.remove(localStorageKeys.untouchedBoard);
-    localStorage.remove(localStorageKeys.userBoard);
   }
 
-  function handleReset() {
-    setIsLoading(true);
-    localStorage.set(localStorageKeys.userBoard, untouchedBoard);
-
+  const turnOffLoadingTimeout = React.useRef(() => {
     setTimeout(() => {
       setIsLoading(false);
     }, 300);
+  }).current;
+
+  function handleReset() {
+    setIsLoading(true);
+    localStorage.remove(localStorageKeys.userBoard);
+
+    turnOffLoadingTimeout();
   }
 
   function getGameContent() {
@@ -85,6 +90,13 @@ function Game(props) {
 
     return content;
   }
+
+  // cleanup setTimeout callback
+  useEffect(() => {
+    return () => {
+      clearTimeout(turnOffLoadingTimeout);
+    };
+  }, [turnOffLoadingTimeout]);
 
   return (
     <StyledEngineProvider injectFirst>
