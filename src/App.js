@@ -3,6 +3,8 @@ import { Fragment } from "react";
 import Game from "./feature/game/game";
 import Gametip from "feature/game/gametip";
 import "./App.css";
+import Layout from "layout/layout";
+import Navbar from "components/navbar";
 
 const modalStyle = {
   position: "absolute",
@@ -19,10 +21,10 @@ const modalStyle = {
 
 function App() {
   return (
-    <Fragment>
+    <Layout navbar={<Navbar />}>
       <Game />
       <Gametip />
-    </Fragment>
+    </Layout>
   );
 }
 
