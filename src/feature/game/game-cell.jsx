@@ -46,11 +46,12 @@ function GameCell({
   );
 }
 
-export default React.memo(GameCell, deepCompareStates);
+export default GameCell;
+// export default React.memo(GameCell, deepCompareStates);
 
-function deepCompareStates(prevProps, newProps) {
-  return _.isEqual(prevProps.cellConfig, newProps.cellConfig);
-}
+// function deepCompareStates(prevProps, newProps) {
+//   return _.isEqual(prevProps.cellConfig, newProps.cellConfig);
+// }
 
 function getCellRootClasses(cellConfig) {
   let rootBase = styles["item-root"];

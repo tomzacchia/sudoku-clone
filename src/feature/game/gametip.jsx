@@ -29,6 +29,7 @@ function Gametip(props) {
     setShowGametip(false);
     localStorage.set(localStorageKeys.showGametip, false);
   }
+
   return (
     <Modal
       open={showGametip}

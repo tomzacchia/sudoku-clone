@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import GameBoard from "./game-board";
 import { Grid, StyledEngineProvider } from "@mui/material";
+import _ from "lodash";
 
 import { localStorage } from "utilities/local-storage";
 import { useGetBoardByDifficulty } from "hooks/game-data.hooks";
@@ -11,58 +12,77 @@ import GameHeader from "./game-header";
 import Controls from "./controls";
 import CenteredSpinner from "components/centered-spinner";
 
+/**
+ * TODO:
+ *  1) pass userBoard into GameBoard as prop
+ *  2) keep userLocation in state
+ *  3) handleUserInput(), save to local and update state
+ *  4) define a const that is the result of comparing untouchedBoard and userBoard before
+ *      it gets passed down as prop. If they are identical, show success
+ */
+
 function Game(props) {
   const { isLoading, error, setIsLoading, getBoardData } =
     useGetBoardByDifficulty();
   const [untouchedBoard, setUntouchedBoard] = useState(() =>
     getFromLocalByKey(localStorageKeys.untouchedBoard)
   );
+  const [userBoard, setUserBoard] = useState(() =>
+    getFromLocalByKey(localStorageKeys.userBoard)
+  );
   const [difficulty, setDifficulty] = useState(
     () => getFromLocalByKey(localStorageKeys.difficulty) || "easy"
   );
+  const [selectedCoord, setSelectedCoord] = useState(null);
   const [isGameDone, setIsGameDone] = useState(false);
 
+  // TODO: refactor this
   useEffect(() => {
-    const isNewGame = !untouchedBoard;
+    const isNewGame = !untouchedBoard && !userBoard;
 
     if (isNewGame) {
       setIsGameDone(false);
-      localStorage.remove(localStorageKeys.untouchedBoard);
-      localStorage.remove(localStorageKeys.userBoard);
 
       async function fetchData() {
         const data = await getBoardData({ difficulty: difficulty });
         setUntouchedBoard(data);
+        setUserBoard(data);
 
         localStorage.set(localStorageKeys.untouchedBoard, data);
-        // NOTE: GameBoard component sets userBoard in localStorage
+        localStorage.set(localStorageKeys.userBoard, data);
       }
 
       fetchData();
     }
     localStorage.set(localStorageKeys.difficulty, difficulty);
-  }, [getBoardData, untouchedBoard, difficulty]);
+  }, [getBoardData, untouchedBoard, userBoard, difficulty]);
 
-  function handleGameDone() {
-    setIsGameDone(true);
+  function handleSelectedCellAtCoord(coord) {
+    setSelectedCoord(coord);
+  }
+
+  function handleUserInput(newValue) {
+    const [row, col] = selectedCoord;
+    let updatedUserBoard = _.cloneDeep(userBoard);
+    updatedUserBoard[row][col] = newValue;
+
+    localStorage.set(localStorageKeys.userBoard, updatedUserBoard);
+    setUserBoard(updatedUserBoard);
   }
 
   function handleDifficultySelection(difficulty) {
-    setDifficulty(difficulty);
+    localStorage.remove(localStorageKeys.untouchedBoard);
+    localStorage.remove(localStorageKeys.userBoard);
     setUntouchedBoard(null);
+    setUserBoard(null);
+    setDifficulty(difficulty);
+    setSelectedCoord(null);
   }
 
-  const turnOffLoadingTimeout = React.useRef(() => {
-    setTimeout(() => {
-      setIsLoading(false);
-    }, 300);
-  }).current;
-
   function handleReset() {
-    setIsLoading(true);
-    localStorage.remove(localStorageKeys.userBoard);
-
-    turnOffLoadingTimeout();
+    localStorage.set(localStorageKeys.userBoard, untouchedBoard);
+    setUserBoard(untouchedBoard);
+    setSelectedCoord(null);
   }
 
   function getGameContent() {
@@ -72,7 +92,10 @@ function Game(props) {
       content = (
         <GameBoard
           untouchedBoard={untouchedBoard}
-          handelGameDone={handleGameDone}
+          userBoard={userBoard}
+          selectedCoord={selectedCoord}
+          handleSelectedCellAtCoord={handleSelectedCellAtCoord}
+          handleUserInput={handleUserInput}
         />
       );
 
@@ -90,13 +113,6 @@ function Game(props) {
 
     return content;
   }
-
-  // cleanup setTimeout callback
-  useEffect(() => {
-    return () => {
-      clearTimeout(turnOffLoadingTimeout);
-    };
-  }, [turnOffLoadingTimeout]);
 
   return (
     <StyledEngineProvider injectFirst>
