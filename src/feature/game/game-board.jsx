@@ -3,19 +3,15 @@ import React from "react";
 import _ from "lodash";
 import GameCell from "./game-cell";
 import { BOARD_LENGTH } from "constants";
-import isSolutionValid from "utilities/sudoko-solver";
 import BoardSubgridLines from "./board-subgrid-lines";
 
 import styles from "./game-board.module.css";
 
 /**
- *
- * @param {*} untouchedBoard | 9x9 2D array
- * @param {*} userBoard | 9x9 2D array
+ * @param {*} gameBoard | []<Cell>
  * @param {*} selectedCellCoord | [coordX, coordY]
  * @param {*} updateSelectedCell | func
  * @param {*} updateUserBoard | func
- * @returns Component
  */
 function GameBoard({
   gameBoard,

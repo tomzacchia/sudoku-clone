@@ -6,6 +6,7 @@ import _ from "lodash";
 import { localStorage } from "utilities/local-storage";
 import { useGetBoardByDifficulty } from "hooks/game-data.hooks";
 import { localStorageKeys } from "constants/index";
+import isSolutionValid from "utilities/sudoko-solver";
 import Cell from "models/cell.model";
 
 import FinishMessage from "./finish-message";
@@ -26,15 +27,12 @@ function Game(props) {
     () => getFromLocalByKey(localStorageKeys.difficulty) || "easy"
   );
   const [selectedCoord, setSelectedCoord] = useState(null);
-  const [isGameDone, setIsGameDone] = useState(false);
 
   // TODO: refactor this
   useEffect(() => {
     const isNewGame = !untouchedBoard && !userBoard;
 
     if (isNewGame) {
-      setIsGameDone(false);
-
       async function fetchData() {
         const data = await getBoardData({ difficulty: difficulty });
         setUntouchedBoard(data);
@@ -78,10 +76,12 @@ function Game(props) {
     setSelectedCoord(null);
   }
 
+  const isGameDone = userBoard && isSolutionValid(userBoard);
+
   function getGameContent() {
     let content;
 
-    if (untouchedBoard) {
+    if (untouchedBoard && userBoard) {
       const gameBoard = compareAndMakeBoardCells(untouchedBoard, userBoard);
       content = (
         <GameBoard
