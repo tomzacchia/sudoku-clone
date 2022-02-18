@@ -41,6 +41,7 @@ function GameCell({
         onChange={(event) => onChangeHandler(event)}
         onKeyDown={onKeyDownHandler}
         onClick={() => onClickHandler(coordX, coordY)}
+        onWheel={(e) => e.target.blur()}
       />
     </Grid>
   );
