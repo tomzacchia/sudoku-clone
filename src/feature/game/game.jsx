@@ -6,20 +6,12 @@ import _ from "lodash";
 import { localStorage } from "utilities/local-storage";
 import { useGetBoardByDifficulty } from "hooks/game-data.hooks";
 import { localStorageKeys } from "constants/index";
+import Cell from "models/cell.model";
 
 import FinishMessage from "./finish-message";
 import GameHeader from "./game-header";
 import Controls from "./controls";
 import CenteredSpinner from "components/centered-spinner";
-
-/**
- * TODO:
- *  1) pass userBoard into GameBoard as prop
- *  2) keep userLocation in state
- *  3) handleUserInput(), save to local and update state
- *  4) define a const that is the result of comparing untouchedBoard and userBoard before
- *      it gets passed down as prop. If they are identical, show success
- */
 
 function Game(props) {
   const { isLoading, error, setIsLoading, getBoardData } =
@@ -73,6 +65,7 @@ function Game(props) {
   function handleDifficultySelection(difficulty) {
     localStorage.remove(localStorageKeys.untouchedBoard);
     localStorage.remove(localStorageKeys.userBoard);
+
     setUntouchedBoard(null);
     setUserBoard(null);
     setDifficulty(difficulty);
@@ -88,16 +81,17 @@ function Game(props) {
   function getGameContent() {
     let content;
 
-    if (untouchedBoard)
+    if (untouchedBoard) {
+      const gameBoard = compareAndMakeBoardCells(untouchedBoard, userBoard);
       content = (
         <GameBoard
-          untouchedBoard={untouchedBoard}
-          userBoard={userBoard}
+          gameBoard={gameBoard}
           selectedCoord={selectedCoord}
           handleSelectedCellAtCoord={handleSelectedCellAtCoord}
           handleUserInput={handleUserInput}
         />
       );
+    }
 
     if (isGameDone) content = <FinishMessage difficulty={difficulty} />;
 
@@ -156,4 +150,22 @@ export default Game;
 function getFromLocalByKey(key) {
   const data = localStorage.get(key);
   return data || null;
+}
+
+/**
+ * merged untouchedBoard and userBoard, and maps to Cell
+ * @param {*} untouchedBoard | from localStorage
+ * @param {*} userBoard | from localStorage
+ * @returns []<Cell>
+ */
+function compareAndMakeBoardCells(untouchedBoard, userBoard) {
+  return untouchedBoard.map((row, coordX) =>
+    row.map((value, coordY) => {
+      const cellValue = value || ""; // 0 stored in 2D array defaults to ""
+      const isCellInterative = !cellValue;
+      const userBoardValue = (userBoard && userBoard[coordX][coordY]) || "";
+
+      return new Cell(cellValue || userBoardValue, isCellInterative);
+    })
+  );
 }

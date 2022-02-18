@@ -4,7 +4,6 @@ import _ from "lodash";
 import GameCell from "./game-cell";
 import { BOARD_LENGTH } from "constants";
 import isSolutionValid from "utilities/sudoko-solver";
-import Cell from "models/cell.model";
 import BoardSubgridLines from "./board-subgrid-lines";
 
 import styles from "./game-board.module.css";
@@ -19,15 +18,13 @@ import styles from "./game-board.module.css";
  * @returns Component
  */
 function GameBoard({
-  untouchedBoard,
-  userBoard,
+  gameBoard,
   selectedCoord,
   handleSelectedCellAtCoord,
   handleUserInput,
 }) {
-  const boardCells = compareAndMakeBoardCells(untouchedBoard, userBoard);
   const boardWithHighlightAndErrors = updateAllErrorCounts(
-    updateHighlightAtCoord(boardCells, selectedCoord)
+    updateHighlightAtCoord(gameBoard, selectedCoord)
   );
 
   function changeHandler(event) {
@@ -80,24 +77,6 @@ function GameBoard({
 }
 
 export default GameBoard;
-
-/**
- * maps untouchedBoard to Cells and updates error count for every cell
- * @param {*} untouchedBoard | from localStorage
- * @param {*} userBoard | from localStorage
- * @returns
- */
-function compareAndMakeBoardCells(untouchedBoard, userBoard) {
-  return untouchedBoard.map((row, coordX) =>
-    row.map((value, coordY) => {
-      const cellValue = value || ""; // 0 stored in 2D array defaults to ""
-      const isCellInterative = !cellValue;
-      const userBoardValue = (userBoard && userBoard[coordX][coordY]) || "";
-
-      return new Cell(cellValue || userBoardValue, isCellInterative);
-    })
-  );
-}
 
 function getAllBoardIndexes() {
   const indexes = [];
