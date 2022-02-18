@@ -15,8 +15,7 @@ import Controls from "./controls";
 import CenteredSpinner from "components/centered-spinner";
 
 function Game(props) {
-  const { isLoading, error, setIsLoading, getBoardData } =
-    useGetBoardByDifficulty();
+  const { isLoading, error, getBoardData } = useGetBoardByDifficulty();
   const [untouchedBoard, setUntouchedBoard] = useState(() =>
     getFromLocalByKey(localStorageKeys.untouchedBoard)
   );
@@ -44,7 +43,6 @@ function Game(props) {
 
       fetchData();
     }
-    localStorage.set(localStorageKeys.difficulty, difficulty);
   }, [getBoardData, untouchedBoard, userBoard, difficulty]);
 
   function handleSelectedCellAtCoord(coord) {
@@ -61,6 +59,7 @@ function Game(props) {
   }
 
   function handleDifficultySelection(difficulty) {
+    localStorage.set(localStorageKeys.difficulty, difficulty);
     localStorage.remove(localStorageKeys.untouchedBoard);
     localStorage.remove(localStorageKeys.userBoard);
 

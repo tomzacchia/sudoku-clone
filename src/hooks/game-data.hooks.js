@@ -41,7 +41,6 @@ export function useGetBoardByDifficulty() {
   return {
     isLoading,
     error,
-    setIsLoading,
     getBoardData: useCallback(getBoardData, []),
   };
 }
