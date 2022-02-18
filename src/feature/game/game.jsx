@@ -112,10 +112,13 @@ function Game(props) {
 
       <Grid
         container
-        flexDirection="column"
-        justifyContent="center"
-        alignItems="center"
-        sx={{ mt: 2 }}
+        sx={{
+          mt: 2,
+          flexDirection: "column",
+          justifyContent: "center",
+          alignItems: "center",
+          flexWrap: "nowrap",
+        }}
       >
         <Grid
           item
@@ -124,9 +127,7 @@ function Game(props) {
             m: "auto",
             minHeight: "454px",
             width: "590px",
-            display: "flex",
           }}
-          flexDirection="column"
         >
           {getGameContent()}
         </Grid>
