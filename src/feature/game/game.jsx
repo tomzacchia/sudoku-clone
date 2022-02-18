@@ -27,7 +27,6 @@ function Game(props) {
   );
   const [selectedCoord, setSelectedCoord] = useState(null);
 
-  // TODO: refactor this
   useEffect(() => {
     const isNewGame = !untouchedBoard && !userBoard;
 
