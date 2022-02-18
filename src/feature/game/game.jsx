@@ -1,10 +1,13 @@
 import React, { useState, useEffect } from "react";
 import GameBoard from "./game-board";
 import { Grid, StyledEngineProvider } from "@mui/material";
+import _ from "lodash";
 
 import { localStorage } from "utilities/local-storage";
 import { useGetBoardByDifficulty } from "hooks/game-data.hooks";
 import { localStorageKeys } from "constants/index";
+import isSolutionValid from "utilities/sudoko-solver";
+import Cell from "models/cell.model";
 
 import FinishMessage from "./finish-message";
 import GameHeader from "./game-header";
@@ -12,69 +15,81 @@ import Controls from "./controls";
 import CenteredSpinner from "components/centered-spinner";
 
 function Game(props) {
-  const { isLoading, error, setIsLoading, getBoardData } =
-    useGetBoardByDifficulty();
+  const { isLoading, error, getBoardData } = useGetBoardByDifficulty();
   const [untouchedBoard, setUntouchedBoard] = useState(() =>
     getFromLocalByKey(localStorageKeys.untouchedBoard)
+  );
+  const [userBoard, setUserBoard] = useState(() =>
+    getFromLocalByKey(localStorageKeys.userBoard)
   );
   const [difficulty, setDifficulty] = useState(
     () => getFromLocalByKey(localStorageKeys.difficulty) || "easy"
   );
-  const [isGameDone, setIsGameDone] = useState(false);
+  const [selectedCoord, setSelectedCoord] = useState(null);
 
   useEffect(() => {
-    const isNewGame = !untouchedBoard;
+    const isNewGame = !untouchedBoard && !userBoard;
 
     if (isNewGame) {
-      setIsGameDone(false);
-      localStorage.remove(localStorageKeys.untouchedBoard);
-      localStorage.remove(localStorageKeys.userBoard);
-
       async function fetchData() {
         const data = await getBoardData({ difficulty: difficulty });
         setUntouchedBoard(data);
+        setUserBoard(data);
 
         localStorage.set(localStorageKeys.untouchedBoard, data);
-        // NOTE: GameBoard component sets userBoard in localStorage
+        localStorage.set(localStorageKeys.userBoard, data);
       }
 
       fetchData();
     }
-    localStorage.set(localStorageKeys.difficulty, difficulty);
-  }, [getBoardData, untouchedBoard, difficulty]);
+  }, [getBoardData, untouchedBoard, userBoard, difficulty]);
 
-  function handleGameDone() {
-    setIsGameDone(true);
+  function handleSelectedCellAtCoord(coord) {
+    setSelectedCoord(coord);
+  }
+
+  function handleUserInput(newValue) {
+    const [row, col] = selectedCoord;
+    let updatedUserBoard = _.cloneDeep(userBoard);
+    updatedUserBoard[row][col] = newValue;
+
+    localStorage.set(localStorageKeys.userBoard, updatedUserBoard);
+    setUserBoard(updatedUserBoard);
   }
 
   function handleDifficultySelection(difficulty) {
-    setDifficulty(difficulty);
-    setUntouchedBoard(null);
-  }
-
-  const turnOffLoadingTimeout = React.useRef(() => {
-    setTimeout(() => {
-      setIsLoading(false);
-    }, 300);
-  }).current;
-
-  function handleReset() {
-    setIsLoading(true);
+    localStorage.set(localStorageKeys.difficulty, difficulty);
+    localStorage.remove(localStorageKeys.untouchedBoard);
     localStorage.remove(localStorageKeys.userBoard);
 
-    turnOffLoadingTimeout();
+    setUntouchedBoard(null);
+    setUserBoard(null);
+    setDifficulty(difficulty);
+    setSelectedCoord(null);
   }
+
+  function handleReset() {
+    localStorage.set(localStorageKeys.userBoard, untouchedBoard);
+    setUserBoard(untouchedBoard);
+    setSelectedCoord(null);
+  }
+
+  const isGameDone = userBoard && isSolutionValid(userBoard);
 
   function getGameContent() {
     let content;
 
-    if (untouchedBoard)
+    if (untouchedBoard && userBoard) {
+      const gameBoard = compareAndMakeBoardCells(untouchedBoard, userBoard);
       content = (
         <GameBoard
-          untouchedBoard={untouchedBoard}
-          handelGameDone={handleGameDone}
+          gameBoard={gameBoard}
+          selectedCoord={selectedCoord}
+          handleSelectedCellAtCoord={handleSelectedCellAtCoord}
+          handleUserInput={handleUserInput}
         />
       );
+    }
 
     if (isGameDone) content = <FinishMessage difficulty={difficulty} />;
 
@@ -90,13 +105,6 @@ function Game(props) {
 
     return content;
   }
-
-  // cleanup setTimeout callback
-  useEffect(() => {
-    return () => {
-      clearTimeout(turnOffLoadingTimeout);
-    };
-  }, [turnOffLoadingTimeout]);
 
   return (
     <StyledEngineProvider injectFirst>
@@ -140,4 +148,22 @@ export default Game;
 function getFromLocalByKey(key) {
   const data = localStorage.get(key);
   return data || null;
+}
+
+/**
+ * merged untouchedBoard and userBoard, and maps to Cell
+ * @param {*} untouchedBoard | from localStorage
+ * @param {*} userBoard | from localStorage
+ * @returns []<Cell>
+ */
+function compareAndMakeBoardCells(untouchedBoard, userBoard) {
+  return untouchedBoard.map((row, coordX) =>
+    row.map((value, coordY) => {
+      const cellValue = value || ""; // 0 stored in 2D array defaults to ""
+      const isCellInterative = !cellValue;
+      const userBoardValue = (userBoard && userBoard[coordX][coordY]) || "";
+
+      return new Cell(cellValue || userBoardValue, isCellInterative);
+    })
+  );
 }

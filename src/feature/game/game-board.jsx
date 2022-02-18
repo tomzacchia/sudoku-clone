@@ -1,57 +1,35 @@
 import { Grid } from "@mui/material";
-import React, { useEffect, useState } from "react";
+import React from "react";
 import _ from "lodash";
 import GameCell from "./game-cell";
-import { DUMMY_BOARD, BOARD_LENGTH, localStorageKeys } from "constants";
-import isSolutionValid from "utilities/sudoko-solver";
-import Cell from "models/cell.model";
+import { BOARD_LENGTH } from "constants";
 import BoardSubgridLines from "./board-subgrid-lines";
-import { localStorage } from "utilities/local-storage";
 
 import styles from "./game-board.module.css";
 
-function GameBoard({ untouchedBoard, handelGameDone }) {
-  const [gameState, setGameState] = useState(() => {
-    const userBoard = localStorage.get(localStorageKeys.userBoard);
-    return initializeState(untouchedBoard, userBoard);
-  });
+/**
+ * @param {*} gameBoard | []<Cell>
+ * @param {*} selectedCellCoord | [coordX, coordY]
+ * @param {*} updateSelectedCell | func
+ * @param {*} updateUserBoard | func
+ */
+function GameBoard({
+  gameBoard,
+  selectedCoord,
+  handleSelectedCellAtCoord,
+  handleUserInput,
+}) {
+  const boardWithHighlightAndErrors = updateAllErrorCounts(
+    updateHighlightAtCoord(gameBoard, selectedCoord)
+  );
 
-  useEffect(() => {
-    const extractedValues = extractValuesFromBoard(gameState);
-    localStorage.set(localStorageKeys.userBoard, extractedValues);
+  function changeHandler(event) {
+    const userInput = _.flow(
+      getLastCharFromNumString,
+      convertNumStringToInteger
+    )(event.target.value);
 
-    const isUserSolutionValid = isSolutionValid(extractedValues);
-
-    if (isUserSolutionValid) {
-      console.log("congrats!");
-      handelGameDone();
-    }
-  }, [gameState, handelGameDone]);
-
-  /**
-   *
-   * @param {*} event | Event object
-   * @param {*} coords | [coordX, coorY]
-   */
-  function changeHandler(event, coord) {
-    setGameState((prevState) => {
-      const [coordX, coordY] = coord;
-
-      let newState = updateValueAtCoord(
-        event.target.value,
-        coord,
-        _.cloneDeep(prevState)
-      );
-
-      const intersectingIndexes = getAllIntersectingIndexes(coordX, coordY);
-
-      newState = updateErrorCountForIndexes(
-        intersectingIndexes,
-        _.cloneDeep(newState)
-      );
-
-      return newState;
-    });
+    handleUserInput(userInput);
   }
 
   /**
@@ -68,23 +46,13 @@ function GameBoard({ untouchedBoard, handelGameDone }) {
     }
   }
 
-  /**
-   * Highlights row, column and subgrid that contain user's selected cell
-   * @param {*} coordX
-   * @param {*} coordY
-   */
   function clickHandler(coordX, coordY) {
-    setGameState((prevState) => {
-      const newState = resetHighlight(_.cloneDeep(prevState));
-      const intersectingIndexes = getAllIntersectingIndexes(coordX, coordY);
-
-      return updateHighlightForIndexes(intersectingIndexes, newState);
-    });
+    handleSelectedCellAtCoord([coordX, coordY]);
   }
 
   return (
     <Grid container columns={BOARD_LENGTH} className={styles["board-root"]}>
-      {gameState.map((row, coordX) => {
+      {boardWithHighlightAndErrors.map((row, coordX) => {
         return row.map((cellConfig, coordY) => (
           <GameCell
             key={`${coordX} ${coordY}`}
@@ -104,37 +72,7 @@ function GameBoard({ untouchedBoard, handelGameDone }) {
   );
 }
 
-export default React.memo(GameBoard, deepCompareStates);
-
-function deepCompareStates(prevProps, newProps) {
-  return _.isEqual(prevProps.cellConfig, newProps.cellConfig);
-}
-
-/**
- * maps untouchedBoard to Cells and updates error count for every cell
- * @param {*} untouchedBoard | from localStorage
- * @param {*} userBoard | from localStorage
- * @returns
- */
-function initializeState(untouchedBoard, userBoard) {
-  const formattedBoard = untouchedBoard.map((row, coordX) =>
-    row.map((value, coordY) => {
-      const cellValue = value || ""; // 0 stored in 2D array defaults to ""
-      const isCellInterative = !cellValue;
-      const userBoardValue = (userBoard && userBoard[coordX][coordY]) || "";
-
-      return new Cell(cellValue || userBoardValue, isCellInterative);
-    })
-  );
-
-  const allIndexes = getAllBoardIndexes();
-  const boardWithErrorsUpdated = updateErrorCountForIndexes(
-    allIndexes,
-    _.cloneDeep(formattedBoard)
-  );
-
-  return boardWithErrorsUpdated;
-}
+export default GameBoard;
 
 function getAllBoardIndexes() {
   const indexes = [];
@@ -148,29 +86,6 @@ function getAllBoardIndexes() {
   return indexes;
 }
 
-function extractValuesFromBoard(boardData) {
-  return boardData.map((row) =>
-    row.map((cell) => (cell.value ? cell.value : 0))
-  );
-}
-
-function updateValueAtCoord(rawValue, coord, boardData) {
-  const [coordX, coordY] = coord;
-  let userInput = _.flow(
-    getLastCharFromNumString,
-    convertNumStringToInteger
-  )(rawValue);
-
-  const isUserInputZero = userInput && userInput === 0;
-
-  if (isUserInputZero || !userInput) {
-    boardData[coordX][coordY].value = "";
-  } else {
-    boardData[coordX][coordY].value = userInput;
-  }
-  return boardData;
-}
-
 function getLastCharFromNumString(numString) {
   return numString && numString[numString.length - 1];
 }
@@ -179,13 +94,15 @@ function convertNumStringToInteger(numString) {
   return numString && parseInt(numString);
 }
 
-function resetHighlight(boardData) {
-  return boardData.map((row) => {
-    return row.map((cellData) => ({ ...cellData, highlightFlag: false }));
-  });
+function updateHighlightAtCoord(boardData, coord) {
+  if (!coord) return boardData;
+
+  const [row, col] = coord;
+  const intersectingIndexes = getIntersectingIndexes(row, col);
+  return updateHighlightAtIndexes(intersectingIndexes, _.cloneDeep(boardData));
 }
 
-function updateHighlightForIndexes(indexes, boardData) {
+function updateHighlightAtIndexes(indexes, boardData) {
   indexes.forEach((index) => {
     const [row, col] = index;
     const cellAtIndex = boardData[row][col];
@@ -195,18 +112,14 @@ function updateHighlightForIndexes(indexes, boardData) {
   return boardData;
 }
 
-function calculateOffset(num) {
-  let offset = 0;
+function updateAllErrorCounts(boardData) {
+  const allIndexes = getAllBoardIndexes();
+  const boardWithErrorsUpdated = updateErrorCountForIndexes(
+    allIndexes,
+    _.cloneDeep(boardData)
+  );
 
-  if (num < 3) {
-    offset = 0;
-  } else if (num < 6) {
-    offset = 3;
-  } else {
-    offset = 6;
-  }
-
-  return offset;
+  return boardWithErrorsUpdated;
 }
 
 /**
@@ -217,39 +130,34 @@ function calculateOffset(num) {
  * @param {*} boardData
  * @returns
  */
+
 function updateErrorCountForIndexes(indexes, boardData) {
   indexes.forEach((index) => {
     const [row, col] = index;
     const valueAtIndex = boardData[row][col].value;
 
-    if (!valueAtIndex) {
-      boardData[row][col].errorCount = 0;
-      return;
-    }
+    if (!valueAtIndex) return;
 
-    let newErrorCount = 0;
+    const intersectingIndexes = getIntersectingIndexes(row, col);
 
-    // get all intersection at index
-    getCellIndexesInRow(row).forEach(updateNewErrorCount);
-    getCellIndexesInColumn(col).forEach(updateNewErrorCount);
-    getCellIndexesInSubgrid(row, col).forEach(updateNewErrorCount);
+    const newErrorCount = intersectingIndexes
+      .filter((intersectingIndex) => !_.isEqual(intersectingIndex, index))
+      .filter((intersectingIndex) => {
+        const [intersectingIndexRow, intersectingIndexCol] = intersectingIndex;
+
+        return (
+          boardData[intersectingIndexRow][intersectingIndexCol].value ===
+          valueAtIndex
+        );
+      }).length;
 
     boardData[row][col].errorCount = newErrorCount;
-
-    function updateNewErrorCount(coord) {
-      const [coordX, coordY] = coord;
-      const valueAtCoord = boardData[coordX][coordY].value;
-
-      if (_.isEqual(index, coord)) return;
-
-      if (valueAtIndex === valueAtCoord) newErrorCount += 1;
-    }
   });
 
   return boardData;
 }
 
-function getAllIntersectingIndexes(row, column) {
+function getIntersectingIndexes(row, column) {
   return removeRepeatedIndexes([
     ...getCellIndexesInRow(row),
     ...getCellIndexesInColumn(column),
@@ -311,4 +219,18 @@ function getCellIndexesInSubgrid(row, column) {
   }
 
   return cellIndexes;
+}
+
+function calculateOffset(num) {
+  let offset = 0;
+
+  if (num < 3) {
+    offset = 0;
+  } else if (num < 6) {
+    offset = 3;
+  } else {
+    offset = 6;
+  }
+
+  return offset;
 }
