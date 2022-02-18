@@ -1,12 +1,11 @@
 import { Grid } from "@mui/material";
-import React, { useEffect, useState } from "react";
+import React from "react";
 import _ from "lodash";
 import GameCell from "./game-cell";
-import { DUMMY_BOARD, BOARD_LENGTH, localStorageKeys } from "constants";
+import { BOARD_LENGTH } from "constants";
 import isSolutionValid from "utilities/sudoko-solver";
 import Cell from "models/cell.model";
 import BoardSubgridLines from "./board-subgrid-lines";
-import { localStorage } from "utilities/local-storage";
 
 import styles from "./game-board.module.css";
 
@@ -31,22 +30,11 @@ function GameBoard({
     updateHighlightAtCoord(boardCells, selectedCoord)
   );
 
-  /**
-   *
-   * @param {*} event | Event object
-   * @param {*} coords | [coordX, coorY]
-   */
-  function changeHandler(event, coord) {
+  function changeHandler(event) {
     const userInput = _.flow(
       getLastCharFromNumString,
       convertNumStringToInteger
     )(event.target.value);
-
-    // let newUserBoard = updateValueAtCoord(
-    //   event.target.value,
-    //   coord,
-    //   _.cloneDeep(userBoard)
-    // );
 
     handleUserInput(userInput);
   }
@@ -65,11 +53,6 @@ function GameBoard({
     }
   }
 
-  /**
-   * Highlights row, column and subgrid that contain user's selected cell
-   * @param {*} coordX
-   * @param {*} coordY
-   */
   function clickHandler(coordX, coordY) {
     handleSelectedCellAtCoord([coordX, coordY]);
   }
@@ -126,29 +109,6 @@ function getAllBoardIndexes() {
   }
 
   return indexes;
-}
-
-// function extractValuesFromBoard(boardData) {
-//   return boardData.map((row) =>
-//     row.map((cell) => (cell.value ? cell.value : 0))
-//   );
-// }
-
-function updateValueAtCoord(rawValue, coord, userBoard) {
-  const [coordX, coordY] = coord;
-  let userInput = _.flow(
-    getLastCharFromNumString,
-    convertNumStringToInteger
-  )(rawValue);
-
-  const isUserInputZero = userInput && userInput === 0;
-
-  if (isUserInputZero || !userInput) {
-    userBoard[coordX][coordY] = 0;
-  } else {
-    userBoard[coordX][coordY] = userInput;
-  }
-  return userBoard;
 }
 
 function getLastCharFromNumString(numString) {
