@@ -38,7 +38,7 @@ function GameCell({
           min: 0,
           max: 9,
         }}
-        onChange={(event) => onChangeHandler(event, [coordX, coordY])}
+        onChange={(event) => onChangeHandler(event)}
         onKeyDown={onKeyDownHandler}
         onClick={() => onClickHandler(coordX, coordY)}
       />
@@ -46,11 +46,7 @@ function GameCell({
   );
 }
 
-export default React.memo(GameCell, deepCompareStates);
-
-function deepCompareStates(prevProps, newProps) {
-  return _.isEqual(prevProps.cellConfig, newProps.cellConfig);
-}
+export default GameCell;
 
 function getCellRootClasses(cellConfig) {
   let rootBase = styles["item-root"];
