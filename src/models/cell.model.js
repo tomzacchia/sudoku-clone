@@ -7,7 +7,6 @@ export default class Cell {
     this.value = value;
     this.isInteractive = isInteractive;
     this.highlightFlag = false;
-    this.errorFlag = false;
     this.errorCount = 0;
   }
 }
