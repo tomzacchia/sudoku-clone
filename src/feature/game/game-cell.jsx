@@ -60,4 +60,4 @@ function GameCell({
   );
 }
 
-export default GameCell;
+export default React.memo(GameCell);
