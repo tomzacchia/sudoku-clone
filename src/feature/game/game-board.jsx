@@ -56,7 +56,7 @@ function GameBoard({
         return row.map((cellConfig, coordY) => (
           <GameCell
             key={`${coordX} ${coordY}`}
-            cellConfig={cellConfig}
+            {...cellConfig}
             coordX={coordX}
             coordY={coordY}
             onChangeHandler={changeHandler}

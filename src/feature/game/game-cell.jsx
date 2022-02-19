@@ -5,35 +5,48 @@ import _ from "lodash";
 import styles from "./game-cell.module.css";
 
 function GameCell({
-  cellConfig,
+  value,
+  isInteractive,
+  highlightFlag,
+  errorCount,
   coordX,
   coordY,
   onChangeHandler,
   onKeyDownHandler,
   onClickHandler,
 }) {
-  const itemRootClass = getCellRootClasses(cellConfig);
-
-  const shouldDisplayUserError =
-    cellConfig.errorCount > 0 && cellConfig.isInteractive;
-
-  const userErrorFlag = cellConfig.errorCount > 0;
+  const shouldHighlightNonInteractiveError = errorCount > 0 && !isInteractive;
+  const userErrorFlag = errorCount > 0;
+  const shouldDisplayUserError = errorCount > 0 && isInteractive;
 
   return (
-    <Grid item xs={1} classes={{ root: itemRootClass }}>
+    <Grid
+      item
+      xs={1}
+      classes={{
+        root: `
+          ${styles["item-root"]} 
+          ${highlightFlag && styles["item-root-highlight"]} 
+          ${
+            shouldHighlightNonInteractiveError &&
+            styles["item-non-interactive-error"]
+          }
+        `,
+      }}
+    >
       <Input
         classes={{
           root: styles["input-root"],
           input: `${styles.input} ${
-            !cellConfig.isInteractive && styles["input-non-interactive"]
+            !isInteractive && styles["input-non-interactive"]
           }`,
           error: shouldDisplayUserError && styles["user-error"],
         }}
         type="number"
-        value={cellConfig.value}
+        value={value}
         error={userErrorFlag}
         disableUnderline={true}
-        disabled={!cellConfig.isInteractive}
+        disabled={!isInteractive}
         inputProps={{
           min: 0,
           max: 9,
@@ -48,17 +61,3 @@ function GameCell({
 }
 
 export default GameCell;
-
-function getCellRootClasses(cellConfig) {
-  let rootBase = styles["item-root"];
-  const shouldHighlightNonInteractiveError =
-    cellConfig.errorCount > 0 && !cellConfig.isInteractive;
-
-  if (shouldHighlightNonInteractiveError) {
-    rootBase += ` ${styles["item-non-interactive-error"]}`;
-  } else if (cellConfig.highlightFlag) {
-    rootBase += ` ${styles["item-root-highlight"]}`;
-  }
-
-  return rootBase;
-}
