@@ -5,7 +5,7 @@ function Navbar(props) {
     <>
       <Grid item xs={2}></Grid>
       <Grid item xs={4}>
-        <Typography variant="h2" style={{ fontWeight: "bold" }}>
+        <Typography variant="h3" style={{ fontWeight: "bold" }}>
           Sudoku
         </Typography>
       </Grid>

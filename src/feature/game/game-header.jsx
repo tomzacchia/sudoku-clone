@@ -3,7 +3,7 @@ import { Grid, Typography } from "@mui/material";
 
 function GameHeader({ difficulty }) {
   return (
-    <Grid container justifyContent="center" sx={{ mt: 4 }}>
+    <Grid container justifyContent="center">
       <Grid item xs={3} textAlign="left" sx={{ display: "flex" }}>
         <Typography variant="h5" sx={{ fontWeight: "bold" }}>
           Difficulty:
